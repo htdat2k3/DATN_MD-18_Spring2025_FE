@@ -8,7 +8,7 @@ const WelcomeScreen = ({navigation}) => {
       navigation.replace("Login"); // Chuyển sang màn hình đăng nhập sau 3s
     }, 3000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
