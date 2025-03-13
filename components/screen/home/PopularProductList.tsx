@@ -1,10 +1,11 @@
 import { ThemedText } from "@/components/common/ThemedText";
 import { ThemedView } from "@/components/common/ThemedView";
-import { Colors } from "@/constants/Colors";
+import { BASE_URL, Colors } from "@/constants/Colors";
 import { NewProductData } from "@/constants/Data";
 import { NewProductItemType } from "@/constants/Types";
 import { formatNumberWithCommas } from "@/constants/Utils";
 import { AntDesign } from "@expo/vector-icons";
+import axios from "axios";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -12,19 +13,26 @@ import { Image, StyleSheet, View } from "react-native";
 export default function PopularProductList() {
 
   const [productsList, setProductsList] = useState<NewProductItemType[]>([])
+
+  const handleGetProductsList = async () => {
+    const response = await axios.get(`${BASE_URL}product/popular-list`);
+    try {
+      console.log("product response = " + JSON.stringify(response.data.data));
+      setProductsList(JSON.parse(JSON.stringify(response.data.data)))
+    } catch (error) {
+      console.error("Invalid JSON string", error);
+    }
+  }
   useEffect(() => {
-    const dataResult: NewProductItemType[] = NewProductData.map((data, index) =>
-      ({ ...data, path: "/product-details/" + index })
-    )
-    setProductsList(dataResult)
+    handleGetProductsList()
   }, [])
 
   return (
     <View style={styles.container}>
       <View style={styles.titleSection}>
         <ThemedText type="subtitle">Sản phẩm phổ biến</ThemedText>
-        <Link href="/temp">
-          <ThemedText style={{ color: Colors.dark.primary }}>Tất cả</ThemedText>
+        <Link href="/category-details/999999">
+          <ThemedText style={{ color: Colors.dark.primary }}></ThemedText>
         </Link>
       </View>
       <View style={styles.list}>

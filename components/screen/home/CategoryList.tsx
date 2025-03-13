@@ -1,22 +1,32 @@
 import { ThemedText } from "@/components/common/ThemedText";
 import { ThemedView } from "@/components/common/ThemedView";
-import { Colors } from "@/constants/Colors";
+import { BASE_URL, Colors } from "@/constants/Colors";
 import { CategoryData } from "@/constants/Data";
 import { CategoryItemType } from "@/constants/Types";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
+import axios from "axios";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, ListRenderItemInfo, StyleSheet, View } from "react-native";
 
 export default function CategoryList() {
 
-
   const [categoryList, useCategoryList] = useState<CategoryItemType[]>([])
+  const handleCallCategoryList = async () => {
+    console.log("------> handleCallCategoryList");
+    try {
+      const response = await axios.get(`${BASE_URL}category/list`);
+      console.log("123 esponse = " + JSON.stringify(response.data.data));
+      useCategoryList(JSON.parse(JSON.stringify(response.data.data)))
+
+    } catch (error) {
+      console.error("Invalid JSON string", error);
+    }
+  }
   useEffect(() => {
-    const dataResult: CategoryItemType[] = CategoryData.map((data, index) =>
-      ({ ...data, path: "/category-details/" + index })
-    )
-    useCategoryList(dataResult)
+    console.log("====> CALL API");
+
+    handleCallCategoryList()
   }, [])
 
   return (
@@ -32,13 +42,17 @@ export default function CategoryList() {
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }: ListRenderItemInfo<CategoryItemType>) => (
-          <Link href={`${item.path}`}>
-            <ThemedView colorRole="surface" style={styles.itemBg}>
-              <FontAwesome5
-                name={item.icon}
-                size={30}
-                color={Colors.dark.primary}
-              />
+          <Link href={`category-details/${item.category_id}`}>
+            <ThemedView>
+              <ThemedView colorRole="surface" style={styles.itemBg}>
+                <AntDesign
+                  name={item.icon}
+                  size={30}
+                  color={Colors.dark.primary}
+                />
+
+              </ThemedView>
+              <ThemedText>{item.name}</ThemedText>
             </ThemedView>
           </Link>
         )}

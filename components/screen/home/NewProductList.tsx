@@ -1,47 +1,72 @@
 import { ThemedText } from "@/components/common/ThemedText";
 import { ThemedView } from "@/components/common/ThemedView";
-import { Colors } from "@/constants/Colors";
+import { useGlobalState } from "@/components/global/GlobalStateProvider";
+import { BASE_URL, Colors } from "@/constants/Colors";
 import { NewProductData } from "@/constants/Data";
 import { NewProductItemType } from "@/constants/Types";
 import { formatNumberWithCommas } from "@/constants/Utils";
 import { AntDesign } from "@expo/vector-icons";
+import axios from "axios";
 import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 export default function NewProductList() {
 
+  const { user } = useGlobalState()
   const [productsList, setProductsList] = useState<NewProductItemType[]>([])
+  const handleLikeProduct = async (productId: number, userId: number, status: boolean) => {
+    const response = await axios.post(`${BASE_URL}product/like`, {
+      product_id: productId,
+      user_id: userId,
+      status: status
+    });
+    if (response.data != null) {
+      const dataResult = productsList.map((data) => data.product_id === productId ? ({
+        ...data, isFavourite: status,
+      }) : data)
+      setProductsList(dataResult)
+    }
+  }
 
+  const handleGetProductsList = async () => {
+    const response = await axios.get(`${BASE_URL}product/list`);
+    try {
+      console.log("product response = " + JSON.stringify(response.data.data));
+      const dataResult = JSON.parse(JSON.stringify(response.data.data))
+      setProductsList(dataResult)
+    } catch (error) {
+      console.error("Invalid JSON string", error);
+    }
+  }
   useEffect(() => {
-    const dataResult: NewProductItemType[] = NewProductData.map((data, index) =>
-      ({ ...data, path: "/product-details/" + index })
-    )
-    setProductsList(dataResult)
+    handleGetProductsList()
+    //         useCategoryList(dataResult)
   }, [])
+  const memoizedItems = useMemo(() => productsList, [productsList]);
 
   return (
     <View style={styles.container}>
       <View style={styles.titleSection}>
-        <ThemedText type="subtitle">Sản phẩm mới</ThemedText>
-        <Link href="/temp">
+        <ThemedText type="subtitle">Sản phẩm</ThemedText>
+        <Link href="/category-details/999999">
           <ThemedText style={{ color: Colors.dark.primary }}>Tất cả</ThemedText>
         </Link>
       </View>
       <View style={styles.list}>
-        {productsList.map((item, index) => (
-          <Link key={index} href={`${item.path}`} style={styles.itemContainer}>
+        {memoizedItems.map((item, index) => (
+          <Link key={index} href={`product-details/${item.product_id}`} style={styles.itemContainer}>
             <ThemedView colorRole="surface" style={styles.itemWrapper}>
               <Image
                 style={styles.itemImg}
                 source={require("../../../assets/images/tshirt.png")}
               />
-              <ThemedText>{item.name}</ThemedText>
+              <ThemedText>{item.product_name}</ThemedText>
               <ThemedText type="defaultSemiBold">
                 {formatNumberWithCommas(item.price) + " VND"}
               </ThemedText>
               <View style={styles.ratingSection}>
-                {Array(item.rating)
+                {Array(5)
                   .fill(0)
                   .map((_, subIndex) => (
                     <AntDesign
@@ -52,14 +77,25 @@ export default function NewProductList() {
                       style={{ marginRight: 3 }}
                     />
                   ))}
-                <ThemedText>({item.numReview})</ThemedText>
+                <ThemedText>({5})</ThemedText>
               </View>
-              <AntDesign
-                name="hearto"
-                size={22}
-                color="#FFF"
-                style={{ position: "absolute", top: 10, right: 10 }}
-              />
+              <TouchableOpacity onPress={() => {
+                handleLikeProduct(item.product_id, user.user_id, !item.isFavourite)
+              }
+              } style={{ position: "absolute", top: 10, right: 10 }}>
+                {item.isFavourite ? (<AntDesign
+                  name="heart"
+                  size={30}
+                  color="red"
+
+                />) : (
+                  <AntDesign
+                    name="hearto"
+                    size={30}
+                    color="#FFF"
+                  />
+                )}
+              </TouchableOpacity>
             </ThemedView>
           </Link>
         ))}

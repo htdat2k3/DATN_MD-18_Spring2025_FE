@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export interface User {
     full_name: string;
     email: string;
+    user_id: number,
+    address: string
 }
 
 interface GlobalState {
