@@ -1,3 +1,7 @@
+import { ThemedSafeAreaView } from "@/components/common/ThemedSafeAreaView";
+import { BASE_URL } from "@/constants/Colors";
+import axios from "axios";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
     View,
@@ -9,44 +13,39 @@ import {
 } from "react-native";
 
 const ResetPasswordScreen = () => {
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [email, setEmail] = useState("");
 
-    const handleConfirm = () => {
-        if (!newPassword || !confirmPassword) {
-            Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin!");
-            return;
+    const handleConfirm = async (id: string) => {
+        try {
+            const response = await axios.post(`${BASE_URL}user/resetPassword`, {
+                email: email
+            });
+            console.log("dataRes = ", response.data.data);
+            router.replace("/(login)")
+        } catch (error) {
+            console.log("error = ", error);
+            alert(error.message)
         }
-        if (newPassword !== confirmPassword) {
-            Alert.alert("Lỗi", "Mật khẩu xác nhận không khớp!");
-            return;
-        }
-        Alert.alert("Thành công", "Mật khẩu đã được cập nhật!");
-        // Xử lý logic thay đổi mật khẩu ở đây (gọi API hoặc cập nhật dữ liệu).
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.form}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Mật khẩu mới của bạn"
-                    secureTextEntry
-                    value={newPassword}
-                    onChangeText={setNewPassword}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Xác nhận mật khẩu mới"
-                    secureTextEntry
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                />
-                <TouchableOpacity style={styles.button} onPress={handleConfirm}>
-                    <Text style={styles.buttonText}>Xác nhận</Text>
-                </TouchableOpacity>
+        <ThemedSafeAreaView>
+            <View style={styles.container}>
+                <View style={styles.form}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Nhập email"
+                        value={email}
+                        onChangeText={setEmail}
+                    />
+
+                    <TouchableOpacity style={styles.button} onPress={handleConfirm}>
+                        <Text style={styles.buttonText}>Xác Nhận</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </ThemedSafeAreaView>
+
     );
 };
 
@@ -71,6 +70,7 @@ const styles = StyleSheet.create({
     input: {
         backgroundColor: "white",
         borderWidth: 1,
+        height: 55,
         borderColor: "#ddd",
         borderRadius: 8,
         padding: 10,

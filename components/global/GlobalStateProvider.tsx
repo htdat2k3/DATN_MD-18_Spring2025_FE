@@ -5,7 +5,8 @@ export interface User {
     full_name: string;
     email: string;
     user_id: number,
-    address: string
+    address: string,
+    phone_number: string
 }
 
 interface GlobalState {
