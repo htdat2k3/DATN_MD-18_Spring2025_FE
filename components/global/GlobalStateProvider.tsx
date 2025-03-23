@@ -1,3 +1,4 @@
+import { CartItem, ProductDetail } from '@/constants/Types';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Define the shape of the global state
@@ -11,13 +12,17 @@ export interface User {
 
 interface GlobalState {
     user: User | null;
+    cartsList: CartItem[] | [];
     saveUser: (userData: User) => void;
+    saveCartsList: (data: CartItem[]) => void;
 }
 
 // Default values for global state
 const defaultState: GlobalState = {
     user: null,
+    cartsList: [],
     saveUser: () => { },
+    saveCartsList: () => { }
 };
 
 // Create the Global State Context
@@ -31,13 +36,18 @@ interface GlobalStateProviderProps {
 // Create the GlobalStateProvider component
 export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [cartsList, setCartsList] = useState<CartItem[]>([])
 
     const saveUser = (userData: User) => {
         setUser(userData);
     };
 
+    const saveCartsList = (cartDataList: CartItem[]) => {
+        setCartsList(cartDataList)
+    }
+
     return (
-        <GlobalStateContext.Provider value={{ user, saveUser }}>
+        <GlobalStateContext.Provider value={{ user, cartsList, saveUser, saveCartsList }}>
             {children}
         </GlobalStateContext.Provider>
     );

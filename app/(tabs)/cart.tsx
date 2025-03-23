@@ -19,13 +19,14 @@ import {
 const CartScreen = () => {
 
     const [cartItems, setCartItems] = useState([])
-    const { user } = useGlobalState()
+    const { user, saveCartsList } = useGlobalState()
     const getAllCart = async () => {
         try {
             const response = await axios.get(`${BASE_URL}cart/cart-by-user/${user?.user_id}`);
             // console.log(response.data.data);
             const cartsList = JSON.parse(JSON.stringify(response.data.data))
             setCartItems(cartsList)
+            saveCartsList(cartsList)
         }
         catch (e) {
             console.log("error = " + e);
@@ -66,6 +67,8 @@ const CartScreen = () => {
                 : item
         );
         setCartItems(updatedCart);
+        saveCartsList(updatedCart)
+
     };
 
     const removeItem = (id) => {
