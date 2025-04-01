@@ -7,11 +7,11 @@ export default function SplashScreen() {
 
     const router = useRouter()
     const { width, height } = useWindowDimensions()
-    // useEffect(() => {
-    //     setTimeout(() => {
-    //         router.replace("/(category)/category")
-    //     }, 5000)
-    // })
+    useEffect(() => {
+        setTimeout(() => {
+            router.replace("/(login)")
+        }, 5000)
+    })
 
     return (
         <View style={styles.container}>
