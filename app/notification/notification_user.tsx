@@ -58,10 +58,6 @@ const NotificationScreen = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Ionicons name="arrow-back" size={24} color="white" />
-                <Text style={styles.headerTitle}>Thông Báo</Text>
-            </View>
             <FlatList
                 data={notifications}
                 renderItem={renderNotification}
