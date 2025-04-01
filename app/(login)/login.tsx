@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, TextInput } from 'react-native'
 import React from 'react'
-import { ThemedView } from '@/components/ThemedView'
-import { ThemedText } from '@/components/ThemedText'
+import { ThemedView } from '@/components/common/ThemedView'
+import { ThemedText } from '@/components/common/ThemedText'
 import { MaterialIcons } from '@expo/vector-icons'
 import CommonButton from '@/components/common/CommonButton'
 import { useRouter } from 'expo-router'
+import { TouchableOpacity } from 'react-native'
 
 export default function login() {
     const router = useRouter()
@@ -30,19 +31,25 @@ export default function login() {
                     keyboardType="default"
                 />
             </View>
-            <View
-                style={{
-                    flexDirection: 'row',
-                    justifyContent: 'flex-end',
-                    alignSelf: 'stretch',
-                    marginTop: 10,
-                    marginEnd: 10,
-                }}
-            >
-                <ThemedText type="default">Quên mật khẩu</ThemedText>
-            </View>
+            <TouchableOpacity onPress={() => {
+                router.push("/forgot_password")
+            }}>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'flex-end',
+                        alignSelf: 'stretch',
+                        marginTop: 10,
+                        marginEnd: 10,
+                    }}
+                >
+                    <ThemedText type="default">Quên mật khẩu</ThemedText>
+                </View>
+            </TouchableOpacity>
             <View style={{ flexDirection: 'row', marginTop: 20, }}>
-                <CommonButton isBackgroundColor={true} text='Đăng nhập' />
+                <CommonButton isBackgroundColor={true} text='Đăng nhập' onPress={(event) => {
+                    router.replace("/(tabs)")
+                }} />
             </View>
             <View style={{ flexDirection: 'row', marginTop: 20 }}>
                 <CommonButton isBackgroundColor={false} text='Đăng ki' onPress={(event) => {

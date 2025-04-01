@@ -2,7 +2,7 @@ import { View, Text, ViewProps, StyleSheet, TouchableOpacity } from 'react-nativ
 import React from 'react'
 import { Category } from '@/constants/Types';
 import { Image } from 'react-native';
-import { ThemedText } from './ThemedText';
+import { ThemedText } from './common/ThemedText';
 
 export type ItemCategoryProps = ViewProps & {
     data: Category
