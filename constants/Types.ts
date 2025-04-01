@@ -21,3 +21,11 @@ export interface Category {
   urlImage: string;
   name: string;
 }
+
+export interface Notification {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  status: string;
+}

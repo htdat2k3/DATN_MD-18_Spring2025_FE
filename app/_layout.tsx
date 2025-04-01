@@ -16,12 +16,12 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <StatusBar style="auto" />
+      <StatusBar hidden />
       <Stack>
-        <Stack.Screen name="(category)" options={{ headerShown: false }} />
-        <Stack.Screen name="(screen)" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="(login)" options={{ headerShown: false }} />
-        <Stack.Screen name="(register)" options={{ headerShown: false }} /> */}
+        <Stack.Screen name="(category)" options={{ headerShown: false, }} />
+        <Stack.Screen name="(screen)" options={{ headerShown: false, }} />
+        <Stack.Screen name="(login)" options={{ headerShown: false }} />
+        <Stack.Screen name="(register)" options={{ headerShown: false }} />
 
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="product-details" options={{ headerShown: false }} />
