@@ -2,12 +2,24 @@ import { ThemedText } from "@/components/common/ThemedText";
 import { ThemedView } from "@/components/common/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { NewProductData } from "@/constants/Data";
+import { NewProductItemType } from "@/constants/Types";
 import { formatNumberWithCommas } from "@/constants/Utils";
 import { AntDesign } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 
 export default function NewProductList() {
+
+  const [productsList, setProductsList] = useState<NewProductItemType[]>([])
+
+  useEffect(() => {
+    const dataResult: NewProductItemType[] = NewProductData.map((data, index) =>
+      ({ ...data, path: "/product-details/" + index })
+    )
+    setProductsList(dataResult)
+  }, [])
+
   return (
     <View style={styles.container}>
       <View style={styles.titleSection}>
@@ -17,8 +29,8 @@ export default function NewProductList() {
         </Link>
       </View>
       <View style={styles.list}>
-        {NewProductData.map((item, index) => (
-          <Link key={index} href={`${item.path}`} style={{ width: "48%" }}>
+        {productsList.map((item, index) => (
+          <Link key={index} href={`${item.path}`} style={styles.itemContainer}>
             <ThemedView colorRole="surface" style={styles.itemWrapper}>
               <Image
                 style={styles.itemImg}
@@ -71,8 +83,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     width: "100%",
     flexDirection: "row",
-    justifyContent: "space-between",
     flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  itemContainer: {
+    width: "48%",
+    marginBottom: 8, // Khoảng cách dọc giữa các item
   },
   itemWrapper: {
     position: "relative",

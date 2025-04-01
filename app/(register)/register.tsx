@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TextInput } from 'react-native'
 import React from 'react'
-import { ThemedView } from '@/components/ThemedView'
-import { ThemedText } from '@/components/ThemedText'
+import { ThemedView } from '@/components/common/ThemedView'
+import { ThemedText } from '@/components/common/ThemedText'
 import { MaterialIcons } from '@expo/vector-icons'
 import CommonButton from '@/components/common/CommonButton'
 
