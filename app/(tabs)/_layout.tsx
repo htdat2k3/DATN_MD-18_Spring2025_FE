@@ -14,14 +14,14 @@ const screenRoutes: ScreenRouteType[] = [
     title: "Trang chủ",
   },
   {
-    routeName: "bookmark",
-    icon: "bookmark",
-    title: "Khám phá",
+    routeName: "cart",
+    icon: "shopping-cart",
+    title: "Giỏ hàng",
   },
   {
-    routeName: "notification",
-    icon: "notifications",
-    title: "Thông báo",
+    routeName: "order",
+    icon: "notes",
+    title: "Hóa đơn",
   },
   {
     routeName: "profile",
