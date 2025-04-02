@@ -10,14 +10,14 @@ import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedView } from '@/components/common/ThemedView';
 import { ThemedText } from '@/components/common/ThemedText';
 import { AntDesign } from '@expo/vector-icons';
-import { formatNumberWithCommas } from '@/constants/Utils';
+import { formatMoney, formatNumberWithCommas } from '@/constants/Utils';
 import { ActivityIndicator } from 'react-native';
 
 
 export default function category() {
 
     const { id } = useLocalSearchParams()
-    console.log("Id = " + typeof (id));
+    console.log("Id = " + id);
 
     const [productsList, setProductsList] = useState([])
     const [loading, setLoading] = useState(true);
@@ -40,7 +40,7 @@ export default function category() {
                 console.log("VAO 1");
 
                 // get all product list 
-                const response = await axios.get(`${BASE_URL}product/list`);
+                const response = await axios.get(`${BASE_URL}product/all-list`);
                 try {
                     setLoading(false)
                     console.log("product response 1 = " + JSON.stringify(response.data.data));
@@ -55,11 +55,13 @@ export default function category() {
                 const response = await axios.get(`${BASE_URL}product/category_id/${id}`);
                 if (response.data) {
                     setTimeout(() => {
-
+                        setProductsList(JSON.parse(JSON.stringify(response.data.data)))
+                        setLoading(false)
                     }, 2000)
                 } else {
                     setTimeout(() => {
                         setProductsList([]);
+                        setLoading(false)
                     }, 2000)
                 }
             }
@@ -109,9 +111,7 @@ export default function category() {
                                     source={require("../../assets/images/tshirt.png")}
                                 />
                                 <ThemedText>{item.product_name}</ThemedText>
-                                <ThemedText type="defaultSemiBold">
-                                    {formatNumberWithCommas(item.price) + " VND"}
-                                </ThemedText>
+
                                 <View style={styles.ratingSection}>
                                     {Array(5)
                                         .fill(0)
@@ -126,23 +126,6 @@ export default function category() {
                                         ))}
                                     <ThemedText>({5})</ThemedText>
                                 </View>
-                                <TouchableOpacity onPress={() => {
-                                    handleLikeProduct(item.product_id, user.user_id, !item.isFavourite)
-                                }
-                                } style={{ position: "absolute", top: 10, right: 10 }}>
-                                    {item.isFavourite ? (<AntDesign
-                                        name="heart"
-                                        size={30}
-                                        color="red"
-
-                                    />) : (
-                                        <AntDesign
-                                            name="hearto"
-                                            size={30}
-                                            color="#FFF"
-                                        />
-                                    )}
-                                </TouchableOpacity>
                             </ThemedView>
                         </Link>
                     ))}

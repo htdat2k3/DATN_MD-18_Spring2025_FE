@@ -23,12 +23,16 @@ const CheckoutScreen = () => {
             }
         ))
 
+        const cartsIdList = cartsList.map((data) => (
+            data.cart_id
+        ))
         const bodyRequest = {
             user_id: user?.user_id,
             payment_method: paymentMethod,
             shipping_fee: shippingMethod,
             shipping_address: address,
-            variants: dataVariantsList
+            variants: dataVariantsList,
+            cart_items: cartsIdList
         }
         console.log("bodyRequest = " + JSON.stringify(bodyRequest));
         console.log("dataVariantsList = " + dataVariantsList);

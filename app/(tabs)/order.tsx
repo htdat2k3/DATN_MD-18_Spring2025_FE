@@ -68,6 +68,26 @@ const OrderScreen = () => {
             console.log("error = " + e);
         }
     }
+    const handleCancelOrder = async (order_id: number) => {
+        try {
+            const response = await axios.put(`${BASE_URL}order/cancel`, {
+                user_id: user?.user_id,
+                order_id: order_id
+            });
+            console.log("response = " + JSON.stringify(response.data));
+
+
+            if (response.data != null) {
+                alert(response.data.message)
+            }
+            const dataFilter = orders.filter((data) => { data.order_id != order_id })
+            console.log("cancelled = " + response.data.data);
+            setOrders(dataFilter)
+        }
+        catch (e) {
+            console.log("error = " + e);
+        }
+    }
 
     useEffect(() => {
         if (activeTab == "ĐÃ GIAO") {
@@ -96,7 +116,9 @@ const OrderScreen = () => {
                         <Text style={styles.detailButtonText}>Chi tiết</Text>
                     </Link>
                     {
-                        activeTab == "ĐANG XỬ LÝ" && <TouchableOpacity>
+                        activeTab == "ĐANG XỬ LÝ" && order.status == "pending" && <TouchableOpacity
+                            onPress={() => { handleCancelOrder(order.order_id) }}
+                        >
                             <Text style={styles.cancelText}>Hủy đơn</Text>
                         </TouchableOpacity>
                     }
