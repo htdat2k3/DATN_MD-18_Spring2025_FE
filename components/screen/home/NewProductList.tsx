@@ -22,6 +22,7 @@ export default function NewProductList() {
       status: status
     });
     if (response.data != null) {
+      alert(response.data.message)
       const dataResult = productsList.map((data) => data.product_id === productId ? ({
         ...data, isFavourite: status,
       }) : data)
@@ -62,9 +63,9 @@ export default function NewProductList() {
                 source={require("../../../assets/images/tshirt.png")}
               />
               <ThemedText>{item.product_name}</ThemedText>
-              <ThemedText type="defaultSemiBold">
+              {/* <ThemedText type="defaultSemiBold">
                 {formatNumberWithCommas(item.price) + " VND"}
-              </ThemedText>
+              </ThemedText> */}
               <View style={styles.ratingSection}>
                 {Array(5)
                   .fill(0)

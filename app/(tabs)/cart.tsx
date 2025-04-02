@@ -1,7 +1,10 @@
 import { ThemedSafeAreaView } from "@/components/common/ThemedSafeAreaView";
+import { useGlobalState } from "@/components/global/GlobalStateProvider";
+import { BASE_URL } from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
 import { router, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -15,43 +18,50 @@ import {
 
 const CartScreen = () => {
 
-    const router = useRouter()
-    const [cartItems, setCartItems] = useState([
-        {
-            id: "1",
-            name: "Áo Pattern",
-            color: "Orenger",
-            price: 157000,
-            size: "M",
-            quantity: 1,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "2",
-            name: "Áo giữ nhiệt",
-            color: "Green",
-            price: 279000,
-            size: "M",
-            quantity: 1,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "3",
-            name: "Quần dài nam",
-            color: "Red",
-            price: 590000,
-            size: "M",
-            quantity: 1,
-            image: "https://via.placeholder.com/150",
-        },
-    ]);
+    const [cartItems, setCartItems] = useState([])
+    const { user } = useGlobalState()
+    const getAllCart = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}cart/cart-by-user/${user?.user_id}`);
+            // console.log(response.data.data);
+            const cartsList = JSON.parse(JSON.stringify(response.data.data))
+            setCartItems(cartsList)
+        }
+        catch (e) {
+            console.log("error = " + e);
 
-    const updateQuantity = (id, type) => {
+        }
+    }
+
+    const updateCart = async (cart_id: number, quantity: number, variant_id: number, user_id: number) => {
+        try {
+            const response = await axios.put(`${BASE_URL}cart/update/${cart_id}`, {
+                quantity: quantity,
+                variant_id: variant_id,
+                user_id: user_id
+            });
+            // console.log(response.data.data);
+            // alert(response.data.message)
+            console.log(response.data.message);
+
+        }
+        catch (e) {
+            console.log("error = " + e);
+
+        }
+    }
+    useEffect(() => {
+        getAllCart()
+    })
+    const router = useRouter()
+    const updateQuantity = async (id: number, type: string, quantity: number, user_id: number, variant_id: number) => {
+
+        updateCart(id, quantity, variant_id, user_id)
         const updatedCart = cartItems.map((item) =>
-            item.id === id
+            item.cart_id === id
                 ? {
                     ...item,
-                    quantity: type === "increase" ? item.quantity + 1 : Math.max(1, item.quantity - 1),
+                    quantity: type === "increase" ? item.quantity : Math.max(1, item.quantity),
                 }
                 : item
         );
@@ -63,8 +73,21 @@ const CartScreen = () => {
             { text: "Hủy", style: "cancel" },
             {
                 text: "Xóa",
-                onPress: () =>
-                    setCartItems(cartItems.filter((item) => item.id !== id)),
+                onPress: async () => {
+
+                    try {
+                        const response = await axios.delete(`${BASE_URL}cart/delete/${id}`);
+                        // console.log(response.data.data);
+                        const cartsList = JSON.parse(JSON.stringify(response.data.data))
+
+                        setCartItems(cartItems.filter((item) => item.cart_id !== id))
+
+                    }
+                    catch (e) {
+                        console.log("error = " + e);
+
+                    }
+                }
             },
         ]);
     };
@@ -74,25 +97,25 @@ const CartScreen = () => {
 
     const renderItem = ({ item }) => (
         <View style={styles.cartItem}>
-            <Image source={{ uri: item.image }} style={styles.productImage} />
+            <Image source={{ uri: `${BASE_URL}/${item.product_image}` }} style={styles.productImage} />
             <View style={styles.productDetails}>
                 <Text style={styles.productName}>
-                    {item.name} - ({item.color})
+                    {item.product_name} - ({item.color_name})
                 </Text>
                 <Text style={styles.productPrice}>
                     {item.price.toLocaleString()} VND
                 </Text>
-                <Text style={styles.productSize}>Size - {item.size}</Text>
+                <Text style={styles.productSize}>Size - {item.size_name}</Text>
                 <View style={styles.quantityContainer}>
                     <TouchableOpacity
-                        onPress={() => updateQuantity(item.id, "increase")}
+                        onPress={() => updateQuantity(item.cart_id, "increase", item.quantity + 1, user!!.user_id, item.variant_id)}
                         style={styles.quantityButton}
                     >
                         <Text style={styles.quantityText}>+</Text>
                     </TouchableOpacity>
                     <Text style={styles.quantity}>{item.quantity}</Text>
                     <TouchableOpacity
-                        onPress={() => updateQuantity(item.id, "decrease")}
+                        onPress={() => updateQuantity(item.cart_id, "decrease", item.quantity - 1, user!!.user_id, item.variant_id)}
                         style={styles.quantityButton}
                     >
                         <Text style={styles.quantityText}>-</Text>
@@ -100,7 +123,7 @@ const CartScreen = () => {
                 </View>
             </View>
             <TouchableOpacity
-                onPress={() => removeItem(item.id)}
+                onPress={() => removeItem(item.cart_id)}
                 style={styles.removeButton}
             >
                 <MaterialIcons name="close" size={20} color="#888" />
@@ -118,7 +141,7 @@ const CartScreen = () => {
                 <FlatList
                     data={cartItems}
                     renderItem={renderItem}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item) => item.cart_id}
                     contentContainerStyle={styles.cartList}
                 />
                 <View style={styles.footer}>

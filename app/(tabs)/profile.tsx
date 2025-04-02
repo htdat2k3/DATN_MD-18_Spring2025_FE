@@ -4,10 +4,19 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
 import { useGlobalState } from "@/components/global/GlobalStateProvider";
+import axios from "axios";
+import { BASE_URL } from "@/constants/Colors";
 export default function HomeScreen() {
 
   const { user } = useGlobalState()
   console.log("user = " + (user?.full_name == null));
+
+  const handleGetAllProductsFavourite = async (id: number) => {
+    const response = await axios.get(`${BASE_URL}product//list_like/${id}`);
+    if (response.data != null) {
+      alert(response.data.message)
+    }
+  }
 
   const router = useRouter()
   return (
@@ -43,7 +52,6 @@ export default function HomeScreen() {
           }}>
             <View>
               <Text style={styles.optionTitle}>Sản phẩm yêu thích</Text>
-              <Text style={styles.optionSubtitle}>Đã có 10 đơn hàng</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={24} color="black" />
           </TouchableOpacity>
@@ -53,7 +61,6 @@ export default function HomeScreen() {
           }}>
             <View>
               <Text style={styles.optionTitle}>Địa chỉ giao hàng</Text>
-              <Text style={styles.optionSubtitle}>03 Địa chỉ</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={24} color="black" />
           </TouchableOpacity>
@@ -63,7 +70,6 @@ export default function HomeScreen() {
           }}>
             <View>
               <Text style={styles.optionTitle}>Đánh giá của tôi</Text>
-              <Text style={styles.optionSubtitle}>Đã đánh giá 5 mục</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={24} color="black" />
           </TouchableOpacity>
@@ -73,7 +79,6 @@ export default function HomeScreen() {
           }}>
             <View>
               <Text style={styles.optionTitle}>Cài đặt</Text>
-              <Text style={styles.optionSubtitle}>Thông báo, Mật khẩu, FAQ, Liên hệ</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={24} color="black" />
           </TouchableOpacity>

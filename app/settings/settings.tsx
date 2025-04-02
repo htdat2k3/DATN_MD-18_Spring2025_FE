@@ -1,60 +1,112 @@
 import { ThemedSafeAreaView } from "@/components/common/ThemedSafeAreaView";
 import { useGlobalState } from "@/components/global/GlobalStateProvider";
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, StyleSheet, Switch, ScrollView } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 
 const SettingsScreen = () => {
-
-    const { user } = useGlobalState()
+    const { user } = useGlobalState();
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [isSalesEnabled, setIsSalesEnabled] = useState(false);
-    const [isBackgroundEnabled, setIsBackgroundEnabled] = useState(false);
+    const [password, setPassword] = useState("");
 
-    const toggleSalesSwitch = () => setIsSalesEnabled((previousState) => !previousState);
-    const toggleBackgroundSwitch = () => setIsBackgroundEnabled((previousState) => !previousState);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isEditingPass, setIsEditingPass] = useState(false);
     useEffect(() => {
         console.log("user = " + user);
+    }, []);
 
-    }, [])
+    const handleSavePersonalInfo = () => {
+        console.log("Saving personal info:", { name, email });
+        setIsEditing(false);
+    };
+
+    const handleUpdatePassword = () => {
+        console.log("Updating password");
+        setIsEditingPass(false);
+    };
+
     return (
         <ThemedSafeAreaView>
             <ScrollView style={styles.container}>
                 <View style={styles.section}>
                     <Text style={styles.sectionHeader}>Thông Tin Cá Nhân</Text>
-                    <Text style={styles.label}>Họ Tên</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={name}
-                        onChangeText={setName}
-                        placeholder="Nhập họ tên"
-                    />
-                    <Text style={styles.label}>Email</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="Nhập email"
-                        keyboardType="email-address"
-                    />
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Họ Tên</Text>
+                        <TextInput
+                            style={[styles.input, isEditing ? styles.editingInput : styles.disabledInput]}
+                            value={name}
+                            onChangeText={setName}
+                            editable={isEditing}
+                            placeholder="Nhập họ tên"
+                        />
+                    </View>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput
+                            style={[styles.input, isEditing ? styles.editingInput : styles.disabledInput]}
+                            value={email}
+                            onChangeText={setEmail}
+                            editable={isEditing}
+                            placeholder="Nhập email"
+                            keyboardType="email-address"
+                        />
+                    </View>
+                    <TouchableOpacity
+                        style={styles.saveButton}
+                        onPress={() => {
+                            if (isEditing) {
+                                handleSavePersonalInfo();
+                            } else {
+                                setIsEditing(true);
+                            }
+                        }}
+                    >
+                        <Text style={styles.saveButtonText}>
+                            {isEditing ? "Lưu Thông Tin" : "Chỉnh Sửa Thông Tin"}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.section}>
                     <Text style={styles.sectionHeader}>Mật Khẩu</Text>
-                    <TextInput style={styles.input} value="*******" secureTextEntry editable={false} />
-                </View>
-
-                <View style={styles.section}>
-                    <Text style={styles.sectionHeader}>Thông Báo</Text>
-                    <View style={styles.switchRow}>
-                        <Text style={styles.switchLabel}>Sales</Text>
-                        <Switch onValueChange={toggleSalesSwitch} value={isSalesEnabled} />
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Mật khẩu mới</Text>
+                        <TextInput
+                            style={[styles.input, isEditingPass ? styles.editingInput : styles.disabledInput]}
+                            value={password}
+                            secureTextEntry
+                            onChangeText={setPassword}
+                            placeholder="Nhập mật khẩu cũ"
+                        />
                     </View>
-                    <View style={styles.switchRow}>
-                        <Text style={styles.switchLabel}>Màu nền</Text>
-                        <Switch onValueChange={toggleBackgroundSwitch} value={isBackgroundEnabled} />
+                    <View style={styles.inputGroup}>
+                        <TextInput
+                            style={[styles.input, isEditingPass ? styles.editingInput : styles.disabledInput]}
+                            value={password}
+                            secureTextEntry
+                            onChangeText={setPassword}
+                            placeholder="Nhập mật khẩu mới"
+                        />
                     </View>
+                    <View style={styles.inputGroup}>
+                        <TextInput
+                            style={[styles.input, isEditingPass ? styles.editingInput : styles.disabledInput]}
+                            value={password}
+                            secureTextEntry
+                            onChangeText={setPassword}
+                            placeholder="Xác nhận mật khẩu"
+                        />
+                    </View>
+                    <TouchableOpacity style={styles.saveButton} onPress={() => {
+                        if (isEditing) {
+                            handleUpdatePassword();
+                        } else {
+                            setIsEditingPass(true);
+                        }
+                    }}>
+                        <Text style={styles.saveButtonText}>Cập Nhật Mật Khẩu</Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </ThemedSafeAreaView>
@@ -65,14 +117,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#f5f5f5",
-        padding: 8,
-    },
-    header: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#008000",
-        textAlign: "center",
-        marginBottom: 8,
+        padding: 16,
     },
     section: {
         backgroundColor: "#ffffff",
@@ -86,31 +131,43 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     sectionHeader: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: "bold",
-        marginBottom: 8,
+        marginBottom: 16,
+    },
+    inputGroup: {
+        marginBottom: 16,
     },
     label: {
         fontSize: 14,
-        marginBottom: 4,
+        color: "#333",
+        marginBottom: 8,
     },
     input: {
         height: 40,
-        borderColor: "#ccc",
         borderWidth: 1,
         borderRadius: 4,
         paddingHorizontal: 8,
         backgroundColor: "#fff",
-        marginBottom: 12,
     },
-    switchRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
+    editingInput: {
+        borderColor: "#008000",
+    },
+    disabledInput: {
+        borderColor: "#999999",
+        backgroundColor: "#f0f0f0",
+    },
+    saveButton: {
+        backgroundColor: "#008000",
+        paddingVertical: 12,
+        borderRadius: 8,
         alignItems: "center",
-        marginBottom: 12,
+        marginTop: 16,
     },
-    switchLabel: {
-        fontSize: 14,
+    saveButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
     },
 });
 

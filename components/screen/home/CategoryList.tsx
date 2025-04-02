@@ -16,9 +16,7 @@ export default function CategoryList() {
     console.log("------> handleCallCategoryList");
     try {
       const response = await axios.get(`${BASE_URL}category/list`);
-      console.log("123 esponse = " + JSON.stringify(response.data.data));
       useCategoryList(JSON.parse(JSON.stringify(response.data.data)))
-
     } catch (error) {
       console.error("Invalid JSON string", error);
     }
@@ -42,19 +40,21 @@ export default function CategoryList() {
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }: ListRenderItemInfo<CategoryItemType>) => (
-          <Link href={`category-details/${item.category_id}`}>
-            <ThemedView>
-              <ThemedView colorRole="surface" style={styles.itemBg}>
-                <AntDesign
-                  name={item.icon}
-                  size={30}
-                  color={Colors.dark.primary}
-                />
-
-              </ThemedView>
+          <View
+            style={{
+              height: 50,
+              width: 100,
+              borderRadius: 25, // Half of height/width for a perfect circle
+              backgroundColor: "#4caf50",
+              justifyContent: "center", // Center vertically
+              alignItems: "center", // Center horizontally
+              alignSelf: "center", // Center the View itself if needed
+            }}
+          >
+            <Link href={`category-details/${item.category_id}`}>
               <ThemedText>{item.name}</ThemedText>
-            </ThemedView>
-          </Link>
+            </Link>
+          </View>
         )}
       />
     </View>
