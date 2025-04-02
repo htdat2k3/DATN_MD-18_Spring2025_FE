@@ -58,6 +58,12 @@ export default function RootLayout() {
           <Stack.Screen name="congratulate" options={{
             headerShown: false
           }} />
+          <Stack.Screen name="failure" options={{
+            headerShown: false
+          }} />
+          <Stack.Screen name='all-product' options={{
+            headerShown: false
+          }} />
           <Stack.Screen name="reviews" options={{
             headerShown: false
           }} />
@@ -65,6 +71,9 @@ export default function RootLayout() {
             headerShown: false
           }} />
           <Stack.Screen name="forgot_password" options={{
+            headerShown: false
+          }} />
+          <Stack.Screen name="chat" options={{
             headerShown: false
           }} />
         </Stack>

@@ -61,6 +61,15 @@ export default function HomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.optionItem} onPress={() => {
+            router.push("/chat")
+          }}>
+            <View>
+              <Text style={styles.optionTitle}>Chat với admin</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={24} color="black" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.optionItem} onPress={() => {
             router.push("/settings")
           }}>
             <View>

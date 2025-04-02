@@ -50,7 +50,7 @@ export default function NewProductList() {
     <View style={styles.container}>
       <View style={styles.titleSection}>
         <ThemedText type="subtitle">Sản phẩm</ThemedText>
-        <Link href="/category-details/999999">
+        <Link href="/all-product">
           <ThemedText style={{ color: Colors.dark.primary }}>Tất cả</ThemedText>
         </Link>
       </View>

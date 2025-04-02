@@ -76,13 +76,9 @@ const OrderScreen = () => {
             });
             console.log("response = " + JSON.stringify(response.data));
 
+            // const dataFilter = Array.from(orders).filter((data) => data.order_id != order_id)
 
-            if (response.data != null) {
-                alert(response.data.message)
-            }
-            const dataFilter = orders.filter((data) => { data.order_id != order_id })
-            console.log("cancelled = " + response.data.data);
-            setOrders(dataFilter)
+            setOrders(prev => prev.filter((data) => data.order_id != order_id))
         }
         catch (e) {
             console.log("error = " + e);

@@ -170,11 +170,12 @@ export interface Category {
 }
 
 export interface Notification {
-  id: string;
+  notification_id: number;
+  user_id: number;
   title: string;
-  description: string;
-  image: string;
-  status: string;
+  message: string;
+  is_read: boolean;
+  created_date: Date;
 }
 
 /**

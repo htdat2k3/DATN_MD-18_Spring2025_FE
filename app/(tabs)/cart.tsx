@@ -4,8 +4,8 @@ import { BASE_URL } from "@/constants/Colors";
 import { formatMoney } from "@/constants/Utils";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
-import { router, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { router, useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -54,9 +54,13 @@ const CartScreen = () => {
 
         }
     }
-    useEffect(() => {
-        getAllCart()
-    }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            console.log("update cart");
+            getAllCart()
+        }, [])
+    );
 
     useEffect(() => {
         setFinalPrice(cartItems.reduce((total, item) => total + item.price * item.quantity, 0))
@@ -170,7 +174,6 @@ const CartScreen = () => {
         <ThemedSafeAreaView>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <MaterialIcons name="arrow-back" size={24} color="white" />
                     <Text style={styles.headerText}>Giỏ hàng</Text>
                 </View>
                 <FlatList

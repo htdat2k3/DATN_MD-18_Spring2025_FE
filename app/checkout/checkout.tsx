@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useGlobalState } from "@/components/global/GlobalStateProvider";
 import axios from "axios";
 import { BASE_URL } from "@/constants/Colors";
 import { router } from "expo-router";
+import WebView from "react-native-webview";
+import { ThemedText } from "@/components/common/ThemedText";
 
 const CheckoutScreen = () => {
     const [address, setAddress] = useState("");
@@ -13,6 +15,8 @@ const CheckoutScreen = () => {
     const [feeTransfer, setFeeTransfer] = useState(0)
     const [paymentMethod, setPaymentMethod] = useState("Paypal");
     const [shippingMethod, setShippingMethod] = useState(10000);
+    const [isPaypal, setIsPaypal] = useState(false)
+    const [linkPaypal, setLinkPaypal] = useState(null)
 
     const handleSendDataToServer = async () => {
         const dataVariantsList = cartsList.map((data) => (
@@ -50,8 +54,71 @@ const CheckoutScreen = () => {
             alert(error.message)
         }
     }
+
+    const handleSendPaypal = async () => {
+        try {
+            const dataVariantsList = cartsList.map((data) => (
+                {
+                    price: data.price,
+                    quantity: data.quantity,
+                    variant_id: data.variant_id
+                }
+            ))
+
+            const cartsIdList = cartsList.map((data) => (
+                data.cart_id
+            ))
+            const bodyRequest = {
+                user_id: user?.user_id,
+                payment_method: paymentMethod,
+                shipping_fee: shippingMethod,
+                shipping_address: address,
+                variants: dataVariantsList,
+                cart_items: cartsIdList,
+                voucher_id: voucher_id
+            }
+            const response = await axios.post(`${BASE_URL}order/new-paypal-order`, bodyRequest);
+            if (response.data != null) {
+                console.log(response.data.data);
+                setLinkPaypal(response.data.data)
+            }
+        } catch (error) {
+            alert(error.message)
+        }
+    }
+
+    const onUrlChange = (webviewState: { url: string | URL | string[] }) => {
+        console.log("webviewStatewebviewState", webviewState);
+        if (webviewState.url.includes(`/payment/paypal-cancel`)) {
+            setLinkPaypal(null)
+            saveCartsList([])
+            saveVoucherId(null)
+            router.replace("/failure")
+            return;
+        }
+        if (webviewState.url.includes(`/payment/paypal-success`)) {
+            console.log("webviewState.url = " + webviewState.url);
+
+            // setLinkPaypal(webviewState.url)
+            setTimeout(() => {
+                saveCartsList([])
+                saveVoucherId(null)
+                // alert("Thanh Toán Thành Công")
+                router.replace("/congratulate")
+            }, 2000)
+        }
+    };
+
     return (
         <View style={styles.container}>
+            <Modal visible={!!linkPaypal}>
+                <View style={{ flex: 1 }}>
+                    <WebView
+                        source={{ uri: linkPaypal }}
+                        onNavigationStateChange={onUrlChange}
+                    />
+                </View>
+            </Modal>
             {/* Shipping Address Section */}
             <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Địa chỉ giao hàng</Text>
@@ -110,7 +177,11 @@ const CheckoutScreen = () => {
 
             {/* Place Order Button */}
             <TouchableOpacity style={styles.orderButton} onPress={() => {
-                handleSendDataToServer()
+                if (paymentMethod == "Paypal") {
+                    handleSendPaypal()
+                } else {
+                    handleSendDataToServer()
+                }
             }}>
                 <Text style={styles.orderButtonText}>Đặt hàng</Text>
             </TouchableOpacity>
