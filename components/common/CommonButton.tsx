@@ -1,6 +1,6 @@
 import { View, ViewProps, StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
 import React from 'react';
-import { ThemedText } from '../ThemedText';
+import { ThemedText } from '../common/ThemedText';
 
 export type ButtonProps = ViewProps & {
     isBackgroundColor?: Boolean; // Giá trị mặc định sẽ được xử lý

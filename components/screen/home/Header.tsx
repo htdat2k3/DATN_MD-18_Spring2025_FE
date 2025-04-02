@@ -4,9 +4,12 @@ import { ThemedInput } from "@/components/common/ThemedInput";
 import { ThemedView } from "@/components/common/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function Header() {
   const [searchValue, setSearchValue] = useState<string>("");
+  const router = useRouter()
+
   return (
     <View style={styles.headerWrapper}>
       <ThemedView style={styles.headerInputWrapper}>
@@ -20,10 +23,10 @@ export default function Header() {
           placeholderTextColor="gray"
         />
       </ThemedView>
-      <TouchableOpacity onPress={() => alert("alo")}>
+      <TouchableOpacity onPress={() => router.push("/notification")}>
         <ThemedView style={styles.headerShoppingBtn}>
           <MaterialIcons
-            name="shopping-cart"
+            name="notifications"
             size={30}
             color={Colors.dark.primary}
           />

@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
-const SuccessScreen = ({ navigation }) => {
+const SuccessScreen = () => {
+    const router = useRouter()
     const handleBackToHome = () => {
-        if (navigation) {
-            navigation.navigate('Home');
-        }
+        router.replace("/(tabs)")
     };
 
     return (

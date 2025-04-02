@@ -24,7 +24,44 @@ export default function RootLayout() {
         <Stack.Screen name="(register)" options={{ headerShown: false }} />
 
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="product-details" options={{ headerShown: false }} />
+        <Stack.Screen name="product-details" options={{
+          title: "Chi tiết", headerTitleAlign: 'center', headerStyle: {
+            backgroundColor: '#00A65E',
+
+          },
+          headerTintColor: "white"
+        }} />
+        <Stack.Screen name="category-details" options={{
+          title: "Danh mục", headerTitleAlign: 'center', headerStyle: {
+            backgroundColor: '#00A65E',
+
+          },
+          headerTintColor: "white"
+        }} />
+        <Stack.Screen name="settings" options={{
+          headerShown: false
+        }} />
+        <Stack.Screen name="notification" options={{
+          headerShown: false
+        }} />
+        <Stack.Screen name="detail-order" options={{
+          headerShown: false
+        }} />
+        <Stack.Screen name="checkout" options={{
+          headerShown: false
+        }} />
+        <Stack.Screen name="congratulate" options={{
+          headerShown: false
+        }} />
+        <Stack.Screen name="reviews" options={{
+          headerShown: false
+        }} />
+        <Stack.Screen name="favorite" options={{
+          headerShown: false
+        }} />
+        <Stack.Screen name="forgot_password" options={{
+          headerShown: false
+        }} />
       </Stack>
     </ThemeProvider>
   );

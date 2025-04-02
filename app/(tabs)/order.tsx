@@ -1,3 +1,5 @@
+import { ThemedSafeAreaView } from '@/components/common/ThemedSafeAreaView';
+import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     View,
@@ -9,7 +11,7 @@ import {
 
 const OrderScreen = () => {
     const [activeTab, setActiveTab] = useState('ĐÃ GIAO');
-
+    const router = useRouter()
     const orders = [
         {
             id: '1',
@@ -28,7 +30,7 @@ const OrderScreen = () => {
     ];
 
     const renderOrders = () => {
-        return orders.map((order) => (
+        return orders.map((order, index) => (
             <View key={order.id} style={styles.orderCard}>
                 <View style={styles.orderHeader}>
                     <Text style={styles.orderNumber}>Order No{order.number}</Text>
@@ -39,9 +41,9 @@ const OrderScreen = () => {
                     <Text style={styles.totalAmount}>Tổng tiền: {order.total}</Text>
                 </View>
                 <View style={styles.orderActions}>
-                    <TouchableOpacity style={styles.detailButton}>
+                    <Link style={styles.detailButton} href={'/detail-order/' + index}>
                         <Text style={styles.detailButtonText}>Chi tiết</Text>
-                    </TouchableOpacity>
+                    </Link>
                     <TouchableOpacity>
                         <Text style={styles.cancelText}>Hủy đơn</Text>
                     </TouchableOpacity>
@@ -51,32 +53,35 @@ const OrderScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.tabContainer}>
-                {['ĐÃ GIAO', 'ĐANG XỬ LÝ', 'ĐÃ HỦY'].map((tab) => (
-                    <TouchableOpacity
-                        key={tab}
-                        style={[
-                            styles.tab,
-                            activeTab === tab && styles.activeTab
-                        ]}
-                        onPress={() => setActiveTab(tab)}
-                    >
-                        <Text
+        <ThemedSafeAreaView>
+            <View style={styles.container}>
+                <View style={styles.tabContainer}>
+                    {['ĐÃ GIAO', 'ĐANG XỬ LÝ', 'ĐÃ HỦY'].map((tab) => (
+                        <TouchableOpacity
+                            key={tab}
                             style={[
-                                styles.tabText,
-                                activeTab === tab && styles.activeTabText
+                                styles.tab,
+                                activeTab === tab && styles.activeTab
                             ]}
+                            onPress={() => setActiveTab(tab)}
                         >
-                            {tab}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+                            <Text
+                                style={[
+                                    styles.tabText,
+                                    activeTab === tab && styles.activeTabText
+                                ]}
+                            >
+                                {tab}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    {renderOrders()}
+                </ScrollView>
             </View>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                {renderOrders()}
-            </ScrollView>
-        </View>
+        </ThemedSafeAreaView>
+
     );
 };
 
