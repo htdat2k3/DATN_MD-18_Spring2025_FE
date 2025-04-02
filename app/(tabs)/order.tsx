@@ -1,6 +1,12 @@
 import { ThemedSafeAreaView } from '@/components/common/ThemedSafeAreaView';
+import { useGlobalState } from '@/components/global/GlobalStateProvider';
+import { BASE_URL } from '@/constants/Colors';
+import { Order } from '@/constants/Types';
+import { formatMoney } from '@/constants/Utils';
+import axios from 'axios';
+import { format } from 'date-fns';
 import { Link, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -11,42 +17,90 @@ import {
 
 const OrderScreen = () => {
     const [activeTab, setActiveTab] = useState('ĐÃ GIAO');
+    const { user } = useGlobalState()
     const router = useRouter()
-    const orders = [
-        {
-            id: '1',
-            number: '238562312',
-            date: '20/03/2020',
-            quantity: 3,
-            total: '$150',
-        },
-        {
-            id: '2',
-            number: '238562312',
-            date: '20/03/2020',
-            quantity: 3,
-            total: '$150',
-        },
-    ];
+    const [orders, setOrders] = useState<Order[]>([])
+    const handleSendCompletedOrder = async () => {
+        try {
+            const response = await axios.post(`${BASE_URL}order/orders-by-user`, {
+                user_id: user?.user_id,
+                status: "completed"
+            });
+            if (response.data.data.length > 0) {
+                setOrders(JSON.parse(JSON.stringify(response.data.data)))
+            } else {
+                setOrders([])
+            }
+            console.log("completed = " + response.data.data);
+        }
+        catch (e) {
+            console.log("error = " + e);
+        }
+    }
+    const handleSendPendingOrder = async () => {
+        try {
+            const response = await axios.post(`${BASE_URL}order/orders-by-user/`, {
+                user_id: user?.user_id,
+                status: "pending"
+            });
+            setOrders(JSON.parse(JSON.stringify(response.data.data)))
+            console.log("pending = " + JSON.stringify(response.data.data));
+        }
+        catch (e) {
+            console.log("error = " + e);
+        }
+    }
+
+    const handleSendCancelOrder = async () => {
+        try {
+            const response = await axios.post(`${BASE_URL}order/orders-by-user/`, {
+                user_id: user?.user_id,
+                status: "cancelled"
+            });
+            if (response.data.data.length > 0) {
+                setOrders(JSON.parse(JSON.stringify(response.data.data)))
+            } else {
+                setOrders([])
+            }
+            console.log("cancelled = " + response.data.data);
+        }
+        catch (e) {
+            console.log("error = " + e);
+        }
+    }
+
+    useEffect(() => {
+        if (activeTab == "ĐÃ GIAO") {
+            handleSendCompletedOrder()
+        } else if (activeTab == "ĐANG XỬ LÝ") {
+            handleSendPendingOrder()
+        } else {
+            handleSendCancelOrder()
+        }
+    }, [activeTab])
 
     const renderOrders = () => {
+
         return orders.map((order, index) => (
-            <View key={order.id} style={styles.orderCard}>
+            <View key={order.order_id} style={styles.orderCard}>
                 <View style={styles.orderHeader}>
-                    <Text style={styles.orderNumber}>Order No{order.number}</Text>
-                    <Text style={styles.orderDate}>{order.date}</Text>
+                    <Text style={styles.orderNumber}>Order No{order.order_id}</Text>
+                    <Text style={styles.orderDate}>{format(new Date(order.created_date), "dd/MM/yyyy HH:mm:ss")}</Text>
                 </View>
                 <View style={styles.orderDetails}>
-                    <Text>Số lượng: {order.quantity.toString().padStart(2, '0')}</Text>
-                    <Text style={styles.totalAmount}>Tổng tiền: {order.total}</Text>
+                    <Text>Số lượng: {order.total_quantity.toString().padStart(2, '0')}</Text>
+                    <Text style={styles.totalAmount}>Tổng tiền: {formatMoney(order.total_price)}</Text>
                 </View>
                 <View style={styles.orderActions}>
-                    <Link style={styles.detailButton} href={'/detail-order/' + index}>
+                    <Link style={styles.detailButton} href={`/detail-order/${order.order_id}`}>
                         <Text style={styles.detailButtonText}>Chi tiết</Text>
                     </Link>
-                    <TouchableOpacity>
-                        <Text style={styles.cancelText}>Hủy đơn</Text>
-                    </TouchableOpacity>
+                    {
+                        activeTab == "ĐANG XỬ LÝ" && <TouchableOpacity>
+                            <Text style={styles.cancelText}>Hủy đơn</Text>
+                        </TouchableOpacity>
+                    }
+
                 </View>
             </View>
         ));
@@ -166,7 +220,11 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     cancelText: {
-        color: '#28a745',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        backgroundColor: "#28a745",
+        color: '#fff',
         fontSize: 12,
         fontWeight: 'bold',
     },

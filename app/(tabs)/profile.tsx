@@ -11,13 +11,6 @@ export default function HomeScreen() {
   const { user } = useGlobalState()
   console.log("user = " + (user?.full_name == null));
 
-  const handleGetAllProductsFavourite = async (id: number) => {
-    const response = await axios.get(`${BASE_URL}product//list_like/${id}`);
-    if (response.data != null) {
-      alert(response.data.message)
-    }
-  }
-
   const router = useRouter()
   return (
     <ThemedSafeAreaView>
