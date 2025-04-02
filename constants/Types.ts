@@ -59,6 +59,24 @@ export interface CartItem {
   stock: number;
   variant_id: number;
 };
+
+/**
+ *
+ * {"order_id":8,"user_id":1,
+ * "total_price":1855555,
+ * "discount_amount":0,"final_price":1855555,
+ * "voucher_id":null,"status":"pending",
+ * "payment_method":"paypal","shipping_address":"","shipping_fee":10000,
+ * "created_date":"2025-03-23T15:43:40.000Z","modified_date":"2025-03-23T15:43:40.000Z","total_quantity":"18"}
+ */
+
+export interface Order {
+  order_id: number,
+  created_date: Date,
+  total_quantity: number,
+  total_price: number,
+  status: string
+}
 /**
  *
  *  "product_id": 1,
@@ -146,4 +164,30 @@ export interface Notification {
   description: string;
   image: string;
   status: string;
+}
+
+/**
+ *
+ */
+
+export interface UserOrder {
+  full_name: string;
+  phone_number: string;
+  address: string;
+}
+
+export interface ProductOrder {
+  product_name: string;
+  product_image: string;
+  quantity: number;
+  price: number;
+  size_name: string;
+  color_name: string;
+}
+
+export interface MergedOrder {
+  order_id: number;
+  payment_method: string;
+  user: UserOrder;
+  products: ProductOrder[];
 }

@@ -21,6 +21,7 @@ const ResetPasswordScreen = () => {
                 email: email
             });
             console.log("dataRes = ", response.data.data);
+            alert(response.data.message)
             router.replace("/(login)")
         } catch (error) {
             console.log("error = ", error);
