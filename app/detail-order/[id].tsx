@@ -1,31 +1,68 @@
+import { BASE_URL } from '@/constants/Colors';
+import { MergedOrder, UserOrder } from '@/constants/Types';
+import { formatMoney } from '@/constants/Utils';
+import axios from 'axios';
 import { useLocalSearchParams } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
 
 const DetailedOrdersScreen = () => {
     const { id } = useLocalSearchParams()
     console.log("id = " + id);
+    const [orderDetail, setOrderDetail] = useState<MergedOrder>()
+    const mergeOrders = (data): MergedOrder => {
+        return {
+            order_id: data.order_id,
+            payment_method: data.payment_method,
+            user: data.user,
+            products: data.items.map(item => ({
+                product_name: item.product_name,
+                product_image: item.product_image,
+                quantity: item.quantity,
+                price: item.price,
+                size_name: item.size_name,
+                color_name: item.color_name,
+            }))
+        };
+    };
+    const handleSendDataToServer = async (idOrder: number) => {
+        try {
+            const response = await axios.get(`${BASE_URL}order/order-detail-by-user/${id}`);
+            const result = mergeOrders(response.data.data)
+            console.log("result = " + JSON.stringify(result));
+            setOrderDetail(result);
+        } catch (error) {
+            alert(error.message)
+        }
+    }
+    useEffect(() => {
+        handleSendDataToServer(id)
+    }, [])
 
     return (
         <ScrollView style={styles.container}>
             {/* Order Header */}
             <View style={styles.headerContainer}>
-                <Text style={styles.orderText}>Đơn hàng: HD1</Text>
+                <Text style={styles.orderText}>Đơn hàng: HD {orderDetail?.order_id ? orderDetail.order_id : "Default"}</Text>
                 <Text style={styles.dateText}>16/10/2023</Text>
             </View>
 
             {/* Products Section */}
             <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Hàng hóa</Text>
-                <View style={styles.productCard}>
-                    <Image
-                        source={{ uri: 'https://via.placeholder.com/50' }}
-                        style={styles.productImage}
-                    />
-                    <Text style={styles.productText}>1. Quần dài</Text>
-                    <Text style={styles.productPrice}>1 x 20,000 Đ</Text>
-                </View>
-                <View style={styles.productCard}>
+
+                {orderDetail?.products.map((data, index) => (
+                    <View style={styles.productCard}>
+                        <Image
+                            source={{ uri: `${BASE_URL}/${data.product_image}` || 'https://via.placeholder.com/50' }}
+                            style={styles.productImage}
+                        />
+                        <Text style={styles.productText}>{index + 1}. {data.product_name}</Text>
+                        <Text style={styles.productPrice}>{data.quantity} x {formatMoney(data.price)} </Text>
+                    </View>
+                ))}
+
+                {/* <View style={styles.productCard}>
                     <Image
                         source={{ uri: 'https://via.placeholder.com/50' }}
                         style={styles.productImage}
@@ -40,22 +77,21 @@ const DetailedOrdersScreen = () => {
                     />
                     <Text style={styles.productText}>3. Quần dài</Text>
                     <Text style={styles.productPrice}>1 x 20,000 Đ</Text>
-                </View>
+                </View> */}
             </View>
 
             {/* Customer Section */}
             <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Khách hàng</Text>
-                <Text style={styles.customerText}>Nguyễn Như Hiếu</Text>
-                <Text style={styles.customerText}>📞 0984907397</Text>
-                <Text style={styles.customerText}>📍 Phúc Thọ - Hà Nội</Text>
+                <Text style={styles.customerText}>Tên: {orderDetail?.user ? orderDetail.user.full_name : "Default"}</Text>
+                <Text style={styles.customerText}>Số điện thoại: {orderDetail?.user ? orderDetail.user.phone_number : "Default"}</Text>
+                <Text style={styles.customerText}>Địa chỉ: {orderDetail?.user ? (orderDetail.user.address.length > 0 ? orderDetail.user.address : "Default") : "Default"}</Text>
             </View>
 
             {/* Payment Section */}
             <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Thanh toán</Text>
-                <Text style={styles.paymentText}>Date: 4h30</Text>
-                <Text style={styles.paymentText}>Method: Shipcode</Text>
+                <Text style={styles.paymentText}>Method: {orderDetail?.payment_method}</Text>
             </View>
         </ScrollView>
     );

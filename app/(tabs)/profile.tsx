@@ -56,14 +56,7 @@ export default function HomeScreen() {
             <Ionicons name="chevron-forward-outline" size={24} color="black" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.optionItem} onPress={() => {
-            router.push("/address")
-          }}>
-            <View>
-              <Text style={styles.optionTitle}>Địa chỉ giao hàng</Text>
-            </View>
-            <Ionicons name="chevron-forward-outline" size={24} color="black" />
-          </TouchableOpacity>
+
 
           <TouchableOpacity style={styles.optionItem} onPress={() => {
             router.push("/reviews")
@@ -79,6 +72,14 @@ export default function HomeScreen() {
           }}>
             <View>
               <Text style={styles.optionTitle}>Cài đặt</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.optionItem} onPress={() => {
+            router.replace("/(login)")
+          }}>
+            <View>
+              <Text style={styles.optionTitle}>Đăng xuất</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={24} color="black" />
           </TouchableOpacity>

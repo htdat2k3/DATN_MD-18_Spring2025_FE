@@ -31,7 +31,7 @@ export default function NewProductList() {
   }
 
   const handleGetProductsList = async () => {
-    const response = await axios.get(`${BASE_URL}product/list`);
+    const response = await axios.get(`${BASE_URL}product/list/${user?.user_id}`);
     try {
       console.log("product response = " + JSON.stringify(response.data.data));
       const dataResult = JSON.parse(JSON.stringify(response.data.data))
@@ -80,6 +80,7 @@ export default function NewProductList() {
                   ))}
                 <ThemedText>({5})</ThemedText>
               </View>
+
               <TouchableOpacity onPress={() => {
                 handleLikeProduct(item.product_id, user.user_id, !item.isFavourite)
               }

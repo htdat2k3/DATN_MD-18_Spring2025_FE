@@ -1,28 +1,91 @@
 import { ThemedSafeAreaView } from "@/components/common/ThemedSafeAreaView";
-import { useGlobalState } from "@/components/global/GlobalStateProvider";
+import { useGlobalState, User } from "@/components/global/GlobalStateProvider";
+import { BASE_URL } from "@/constants/Colors";
+import axios, { AxiosError } from "axios";
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 
 const SettingsScreen = () => {
-    const { user } = useGlobalState();
+    const { user, saveUser } = useGlobalState();
 
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
+    const [name, setName] = useState(user?.full_name);
+    const [email, setEmail] = useState(user?.email);
+    const [address, setAddress] = useState(user?.address);
+    const [phone, setPhone] = useState(user?.phone_number);
+
     const [password, setPassword] = useState("");
+    const [passwordOld, setPasswordOld] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
+
 
     const [isEditing, setIsEditing] = useState(false);
     const [isEditingPass, setIsEditingPass] = useState(false);
     useEffect(() => {
         console.log("user = " + user);
     }, []);
-
-    const handleSavePersonalInfo = () => {
-        console.log("Saving personal info:", { name, email });
+    const validatePassword = () => {
+        if (!passwordOld) {
+            alert("Vui lòng nhập mật khẩu cũ.");
+            return false;
+        }
+        if (password.length < 6) {
+            alert('Mật khẩu mới phải có ít nhất 6 ký tự.');
+            return false;
+        }
+        if (password !== passwordConfirm) {
+            alert('Xác nhận mật khẩu không khớp.');
+            return false;
+        }
+        return true;
+    };
+    const handleSavePersonalInfo = async () => {
+        try {
+            const response = await axios.post(`${BASE_URL}user/update`, {
+                user_id: user?.user_id,
+                full_name: name,
+                phone_number: phone,
+                address: address
+            });
+            if (response.data != null) {
+                const userNew: User = {
+                    full_name: name,
+                    email: user?.email,
+                    user_id: user?.user_id,
+                    address: address,
+                    phone_number: phone
+                }
+                saveUser(userNew)
+            }
+            console.log("response1 = " + JSON.stringify(response.data.data));
+            alert(response.data.message)
+        } catch (e) {
+            if (e instanceof AxiosError) {
+                alert(e.response?.data.message);
+            } else {
+                alert("Đã có lỗi khi gửi request lên server.")
+            }
+        }
         setIsEditing(false);
     };
 
-    const handleUpdatePassword = () => {
-        console.log("Updating password");
+    const handleUpdatePassword = async () => {
+        try {
+            if (validatePassword()) {
+                const response = await axios.post(`${BASE_URL}user/updatePassword/${user?.user_id}`, {
+                    email: user?.email,
+                    passwordOld: passwordOld,
+                    passwordNew: passwordConfirm,
+                });
+                alert(response.data.message)
+            }
+
+        } catch (e) {
+            if (e instanceof AxiosError) {
+                alert(e.response?.data.message);
+            } else {
+                alert("Đã có lỗi khi gửi request lên server.")
+            }
+        }
         setIsEditingPass(false);
     };
 
@@ -42,12 +105,32 @@ const SettingsScreen = () => {
                         />
                     </View>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Email</Text>
+                        <Text style={styles.label}>Địa chỉ</Text>
                         <TextInput
                             style={[styles.input, isEditing ? styles.editingInput : styles.disabledInput]}
+                            value={address}
+                            onChangeText={setAddress}
+                            editable={isEditing}
+                            placeholder="Nhập địa chỉ"
+                        />
+                    </View>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Số điện thoại</Text>
+                        <TextInput
+                            style={[styles.input, isEditing ? styles.editingInput : styles.disabledInput]}
+                            value={phone}
+                            onChangeText={setPhone}
+                            editable={isEditing}
+                            placeholder="Nhập số điện thoại"
+                        />
+                    </View>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput
+                            style={[styles.input, styles.disabledInput]}
                             value={email}
                             onChangeText={setEmail}
-                            editable={isEditing}
+                            editable={false}
                             placeholder="Nhập email"
                             keyboardType="email-address"
                         />
@@ -74,9 +157,9 @@ const SettingsScreen = () => {
                         <Text style={styles.label}>Mật khẩu mới</Text>
                         <TextInput
                             style={[styles.input, isEditingPass ? styles.editingInput : styles.disabledInput]}
-                            value={password}
+                            value={passwordOld}
                             secureTextEntry
-                            onChangeText={setPassword}
+                            onChangeText={setPasswordOld}
                             placeholder="Nhập mật khẩu cũ"
                         />
                     </View>
@@ -92,14 +175,14 @@ const SettingsScreen = () => {
                     <View style={styles.inputGroup}>
                         <TextInput
                             style={[styles.input, isEditingPass ? styles.editingInput : styles.disabledInput]}
-                            value={password}
+                            value={passwordConfirm}
                             secureTextEntry
-                            onChangeText={setPassword}
+                            onChangeText={setPasswordConfirm}
                             placeholder="Xác nhận mật khẩu"
                         />
                     </View>
                     <TouchableOpacity style={styles.saveButton} onPress={() => {
-                        if (isEditing) {
+                        if (isEditingPass) {
                             handleUpdatePassword();
                         } else {
                             setIsEditingPass(true);

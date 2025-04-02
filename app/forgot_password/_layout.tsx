@@ -6,7 +6,7 @@ export default function RootLayout() {
     return (
         <Stack>
             <Stack.Screen name='forgot_password' options={{
-                title: "Sản phẩm yêu thích", headerTitleAlign: 'center', headerStyle: {
+                title: "Quên mật khẩu", headerTitleAlign: 'center', headerStyle: {
                     backgroundColor: '#00A65E',
 
                 },

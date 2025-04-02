@@ -1,45 +1,46 @@
-import React from "react";
+import { useGlobalState } from "@/components/global/GlobalStateProvider";
+import { BASE_URL } from "@/constants/Colors";
+import { ProductReview } from "@/constants/Types";
+import axios from "axios";
+import { format } from "date-fns";
+
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 
-const reviews = [
-    {
-        id: "1",
-        image: "https://via.placeholder.com/300x200", // Replace with your image URL
-        title: "Áo",
-        price: "$ 50.00",
-        rating: 5,
-        comment: "Áo rất đẹp",
-        date: "20/03/2020",
-    },
-    {
-        id: "2",
-        image: "https://via.placeholder.com/300x200", // Replace with your image URL
-        title: "Áo",
-        price: "$ 50.00",
-        rating: 5,
-        comment: "Áo đẹp quá",
-        date: "20/03/2020",
-    },
-];
-
 const ReviewScreen = () => {
-    const renderReviews = ({ item: review }) => {
+    const { user } = useGlobalState();
+    const [reviewsList, setReviewsList] = useState<ProductReview[]>([]);
+
+    const getAllReviewsByUserId = async (id: number) => {
+        try {
+            const response = await axios.get(`${BASE_URL}review/list-by-user/${id}`);
+            console.log("dataRes = ", response.data.data);
+            setReviewsList(response.data.data || []);
+        } catch (error) {
+            console.log("error = ", error);
+        }
+    };
+
+    useEffect(() => {
+        getAllReviewsByUserId(user?.user_id || 1);
+    }, []);
+
+    const renderReview = ({ item }: { item: ProductReview }) => {
         return (
             <View style={styles.card}>
                 <View style={styles.row}>
-                    <Image source={{ uri: review.image }} style={styles.image} resizeMode="contain" />
+                    <Image source={{ uri: `${BASE_URL}/${item.product_image}` || "https://via.placeholder.com/80" }} style={styles.image} />
                     <View style={styles.info}>
-                        <Text style={styles.title}>{review.title}</Text>
-                        <Text style={styles.price}>{review.price}</Text>
+                        <Text style={styles.title}>{item.product_name}</Text>
                         <View style={styles.stars}>
-                            {Array.from({ length: review.rating }).map((_, index) => (
+                            {Array.from({ length: item.number_of_stars }).map((_, index) => (
                                 <Text key={index}>⭐</Text>
                             ))}
                         </View>
-                        <Text style={styles.comment}>{review.comment}</Text>
+                        <Text style={styles.comment}>{item.content}</Text>
                     </View>
                 </View>
-                <Text style={styles.date}>{review.date}</Text>
+                <Text style={styles.date}>{format(new Date(item.created_date), "dd/MM/yyyy HH:mm:ss")}</Text>
             </View>
         );
     };
@@ -47,9 +48,9 @@ const ReviewScreen = () => {
     return (
         <View style={styles.container}>
             <FlatList
-                data={reviews}
-                keyExtractor={(item) => item.id}
-                renderItem={renderReviews}
+                data={reviewsList}
+                keyExtractor={(item) => item.review_id.toString()}
+                renderItem={renderReview}
             />
         </View>
     );
@@ -60,14 +61,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#f5f5f5",
         paddingHorizontal: 10,
-    },
-    header: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "white",
-        backgroundColor: "#2DCC70",
-        padding: 15,
-        textAlign: "center",
     },
     card: {
         backgroundColor: "white",
@@ -95,11 +88,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 16,
         fontWeight: "bold",
-    },
-    price: {
-        fontSize: 14,
-        color: "#000",
-        marginVertical: 5,
     },
     stars: {
         flexDirection: "row",

@@ -16,6 +16,7 @@ import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
 import { PairProduct, PairValueProduct, ProductDetail, ProductVariant, ReviewProduct } from "@/constants/Types";
 import { Link } from "expo-router";
 import { useGlobalState } from "@/components/global/GlobalStateProvider";
+import { formatMoney } from "@/constants/Utils";
 type StringArrayMap = {
   [key: string]: string[];
 };
@@ -255,7 +256,7 @@ const ProductDetailScreen = () => {
 
       {/* Price and Quantity */}
 
-      <Text style={styles.price}>{mapProduct?.get(`${selectedPairProduct!!.color_name}_${selectedPairProduct!!.size_name}`)?.price || 0} VND</Text>
+      <Text style={styles.price}>{formatMoney(mapProduct?.get(`${selectedPairProduct!!.color_name}_${selectedPairProduct!!.size_name}`)?.price || 0)}</Text>
       <View style={styles.quantityContainer}>
         <Text style={styles.optionLabel}>Số Lượng:</Text>
         <View style={styles.quantityControls}>

@@ -28,8 +28,10 @@ const FavoriteScreen = () => {
             const response = await axios.get(`${BASE_URL}product/list_like/${user_id}`);
             // console.log("dataRes = " + JSON.stringify(response.data.data));
             alert(response.data.message)
-            const dataRes = JSON.parse(JSON.stringify(response.data.data)) as ProductFavourite
-            setFavorites(JSON.parse(JSON.stringify(response.data.data)))
+            const dataRes = JSON.parse(JSON.stringify(response.data.data))
+            // console.log("dataRes = " + dataRes[0].product_name);
+
+            setFavorites(dataRes)
         }
         catch (e) {
             console.log("error = " + e);
@@ -37,11 +39,12 @@ const FavoriteScreen = () => {
     };
 
     const renderItem = (item: ProductFavourite) => {
-        console.log("item = " + item.image_urls);
+        // console.log("item = " + JSON.stringify(item));
+        console.log("item = " + item.product_name);
 
         return (
             <View style={styles.itemContainer}>
-                {/* <Image source={{ uri: `${BASE_URL}/${item.image_urls[0]}` }} style={styles.itemImage} /> */}
+                <Image source={{ uri: `${BASE_URL}/${item.image_urls[0]}` }} style={styles.itemImage} />
                 <View style={styles.itemDetails}>
                     <Text style={styles.itemName}>{item.product_name}</Text>
                     <Text style={styles.itemPrice}>{item.description}</Text>
@@ -62,8 +65,7 @@ const FavoriteScreen = () => {
         <View style={styles.container}>
             <FlatList
                 data={favorites}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.product_id}
+                renderItem={({ item }) => renderItem(item)}
                 contentContainerStyle={styles.listContainer}
             />
             <TouchableOpacity onPress={() => { }} style={styles.addAllButton}>
@@ -113,7 +115,7 @@ const styles = StyleSheet.create({
     itemName: {
         fontSize: 16,
         fontWeight: "bold",
-        color: "#333333",
+        color: "#000000",
     },
     itemPrice: {
         fontSize: 14,
