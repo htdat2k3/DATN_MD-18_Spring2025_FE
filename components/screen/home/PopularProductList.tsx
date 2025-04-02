@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/common/ThemedText";
 import { ThemedView } from "@/components/common/ThemedView";
 import { BASE_URL, Colors } from "@/constants/Colors";
 import { NewProductData } from "@/constants/Data";
-import { NewProductItemType } from "@/constants/Types";
+import { NewProductItemType, ProductPopular } from "@/constants/Types";
 import { formatNumberWithCommas } from "@/constants/Utils";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
@@ -12,12 +12,12 @@ import { Image, StyleSheet, View } from "react-native";
 
 export default function PopularProductList() {
 
-  const [productsList, setProductsList] = useState<NewProductItemType[]>([])
+  const [productsList, setProductsList] = useState<ProductPopular[]>([])
 
   const handleGetProductsList = async () => {
     const response = await axios.get(`${BASE_URL}product/popular-list`);
     try {
-      console.log("product response = " + JSON.stringify(response.data.data));
+      console.log("product response 1 = " + JSON.stringify(response.data.data));
       setProductsList(JSON.parse(JSON.stringify(response.data.data)))
     } catch (error) {
       console.error("Invalid JSON string", error);
@@ -45,12 +45,10 @@ export default function PopularProductList() {
             <ThemedView colorRole="surface" style={styles.itemWrapper}>
               <Image
                 style={styles.itemImg}
-                source={require("../../../assets/images/tshirt.png")}
+                source={{ uri: `${BASE_URL}/${item.image_url}` }}
               />
-              <ThemedText>{item.name}</ThemedText>
-              <ThemedText type="defaultSemiBold">
-                {formatNumberWithCommas(item.price) + " VND"}
-              </ThemedText>
+              <ThemedText>{item.product_name}</ThemedText>
+
               <View style={styles.ratingSection}>
                 {Array(item.rating)
                   .fill(0)
@@ -63,14 +61,8 @@ export default function PopularProductList() {
                       style={{ marginRight: 3 }}
                     />
                   ))}
-                <ThemedText>({item.numReview})</ThemedText>
+                <ThemedText>({item.rating})</ThemedText>
               </View>
-              <AntDesign
-                name="hearto"
-                size={22}
-                color="#FFF"
-                style={{ position: "absolute", top: 10, right: 10 }}
-              />
             </ThemedView>
           </Link>
         ))}

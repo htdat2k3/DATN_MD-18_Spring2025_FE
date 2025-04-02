@@ -17,10 +17,21 @@ export interface NewProductItemType {
   price: number,
   quantity: number,
   category: string,
-  img: string[],
+  rating: number,
+  current_images: string[],
   modified_date: Date,
   created_date: Date,
   isFavourite: boolean,
+}
+
+export interface ProductPopular {
+  product_id: number;
+  product_name: string;
+  category_id: number;
+  description: string;
+  total_quantity: number; // Assuming quantity is numeric
+  image_url: string;
+  rating: number;
 }
 
 export interface ProductVariant {
@@ -74,7 +85,7 @@ export interface Order {
   order_id: number,
   created_date: Date,
   total_quantity: number,
-  total_price: number,
+  final_price: number,
   status: string
 }
 /**
@@ -188,6 +199,8 @@ export interface ProductOrder {
 export interface MergedOrder {
   order_id: number;
   payment_method: string;
+  discount_amount: number,
+  created_date: Date,
   user: UserOrder;
   products: ProductOrder[];
 }

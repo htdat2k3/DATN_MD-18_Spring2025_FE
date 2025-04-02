@@ -14,6 +14,8 @@ const DetailedOrdersScreen = () => {
         return {
             order_id: data.order_id,
             payment_method: data.payment_method,
+            discount_amount: data.discount_amount,
+            created_date: data.created_date,
             user: data.user,
             products: data.items.map(item => ({
                 product_name: item.product_name,
@@ -44,7 +46,7 @@ const DetailedOrdersScreen = () => {
             {/* Order Header */}
             <View style={styles.headerContainer}>
                 <Text style={styles.orderText}>Đơn hàng: HD {orderDetail?.order_id ? orderDetail.order_id : "Default"}</Text>
-                <Text style={styles.dateText}>16/10/2023</Text>
+                <Text style={styles.dateText}>{orderDetail?.created_date ? orderDetail.created_date : "Default"}</Text>
             </View>
 
             {/* Products Section */}
@@ -61,6 +63,17 @@ const DetailedOrdersScreen = () => {
                         <Text style={styles.productPrice}>{data.quantity} x {formatMoney(data.price)} </Text>
                     </View>
                 ))}
+
+
+                <View style={{
+                    marginTop: 20,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+
+                }}>
+                    <Text style={styles.saleOffTitle}>Khuyến mãi</Text>
+                    <Text style={styles.saleOffTitle}>{formatMoney(orderDetail?.discount_amount ? orderDetail.discount_amount : 0)}</Text>
+                </View>
 
                 {/* <View style={styles.productCard}>
                     <Image
@@ -131,6 +144,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         color: '#28a745',
+    },
+    saleOffTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: 'red',
     },
     productCard: {
         flexDirection: 'row',

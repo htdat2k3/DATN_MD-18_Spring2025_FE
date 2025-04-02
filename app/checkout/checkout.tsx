@@ -8,7 +8,7 @@ import { router } from "expo-router";
 
 const CheckoutScreen = () => {
     const [address, setAddress] = useState("");
-    const { user, cartsList, saveCartsList } = useGlobalState()
+    const { user, cartsList, saveCartsList, voucher_id, saveVoucherId } = useGlobalState()
     const [total, setTotal] = useState(cartsList.reduce((acculator, currentValue) => acculator + (currentValue.price * currentValue.quantity), 0))
     const [feeTransfer, setFeeTransfer] = useState(0)
     const [paymentMethod, setPaymentMethod] = useState("Paypal");
@@ -23,12 +23,17 @@ const CheckoutScreen = () => {
             }
         ))
 
+        const cartsIdList = cartsList.map((data) => (
+            data.cart_id
+        ))
         const bodyRequest = {
             user_id: user?.user_id,
             payment_method: paymentMethod,
             shipping_fee: shippingMethod,
             shipping_address: address,
-            variants: dataVariantsList
+            variants: dataVariantsList,
+            cart_items: cartsIdList,
+            voucher_id: voucher_id
         }
         console.log("bodyRequest = " + JSON.stringify(bodyRequest));
         console.log("dataVariantsList = " + dataVariantsList);
@@ -37,6 +42,7 @@ const CheckoutScreen = () => {
             const response = await axios.post(`${BASE_URL}order/new`, bodyRequest);
             if (response.data != null) {
                 saveCartsList([])
+                saveVoucherId(null)
                 alert(response.data.message)
                 router.replace("/congratulate")
             }
