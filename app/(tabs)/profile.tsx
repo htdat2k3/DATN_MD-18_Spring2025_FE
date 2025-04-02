@@ -3,7 +3,11 @@ import { ThemedText } from "@/components/common/ThemedText";
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
+import { useGlobalState } from "@/components/global/GlobalStateProvider";
 export default function HomeScreen() {
+
+  const { user } = useGlobalState()
+  console.log("user = " + (user?.full_name == null));
 
   const router = useRouter()
   return (
@@ -27,8 +31,8 @@ export default function HomeScreen() {
             style={styles.profileImage}
           />
           <View>
-            <Text style={styles.profileName}>Phùng Tiến Dũng</Text>
-            <Text style={styles.profileEmail}>phungtiendung211104@gmail.com</Text>
+            <Text style={styles.profileName}>{(user?.full_name != null) ? user.full_name : "Default"}</Text>
+            <Text style={styles.profileEmail}>{user?.email ? user.email : "Default@gmail.com"}</Text>
           </View>
         </View>
 

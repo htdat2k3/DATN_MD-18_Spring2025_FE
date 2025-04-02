@@ -1,16 +1,23 @@
 import { ThemedSafeAreaView } from "@/components/common/ThemedSafeAreaView";
-import React, { useState } from "react";
+import { useGlobalState } from "@/components/global/GlobalStateProvider";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet, Switch, ScrollView } from "react-native";
 
 const SettingsScreen = () => {
-    const [name, setName] = useState("Việt Vũ");
-    const [email, setEmail] = useState("vvv@gmail.com");
+
+    const { user } = useGlobalState()
+
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
     const [isSalesEnabled, setIsSalesEnabled] = useState(false);
     const [isBackgroundEnabled, setIsBackgroundEnabled] = useState(false);
 
     const toggleSalesSwitch = () => setIsSalesEnabled((previousState) => !previousState);
     const toggleBackgroundSwitch = () => setIsBackgroundEnabled((previousState) => !previousState);
+    useEffect(() => {
+        console.log("user = " + user);
 
+    }, [])
     return (
         <ThemedSafeAreaView>
             <ScrollView style={styles.container}>
