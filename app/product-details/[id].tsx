@@ -7,49 +7,135 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { BASE_URL } from "@/constants/Colors";
+import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
+import { PairProduct, PairValueProduct, ProductDetail, ProductVariant, ReviewProduct } from "@/constants/Types";
+import { Link } from "expo-router";
+type StringArrayMap = {
+  [key: string]: string[];
+};
+const ProductDetailScreen = () => {
 
-const ProductDetail = () => {
-  const [productDetail, setProductDetail] = useState([]);
+  const { id } = useLocalSearchParams()
+  const [productDetail, setProductDetail] = useState<ProductDetail>();
   const [quantity, setQuantity] = useState(1);
   const [expandedDescription, setExpandedDescription] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>();
+  const [selectedPairProduct, setSelectedPairProduct] = useState<PairProduct>();
+  const [mapColorState, setMapColorState] = useState<Map<string, string[]>>(new Map());
+  const [mapSizeState, setMapSizeState] = useState<Map<string, string[]>>(new Map());
+  const [mapProduct, setMapProduct] = useState<Map<string, PairValueProduct>>();
+  const [reviewsList, setReviewList] = useState<ReviewProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const handleGetProductDetailById = async (productId) => {
+  const renderItem = (item: ReviewProduct) => (
+    <View style={styles.reviewContainer} key={item.review_id}>
+      {/* User and Rating */}
+      <View style={styles.header1}>
+        <Text style={styles.userName}>{item.user_name}</Text>
+        <View style={styles.rating}>
+          {[...Array(item.number_of_stars)].map((_, index) => (
+            <FontAwesome key={index} name="star" size={16} color="#FFD700" />
+          ))}
+        </View>
+      </View>
+
+      {/* Date and Size */}
+      <Text style={styles.date}>{item.created_date}</Text>
+
+      {/* Feedback */}
+      <Text style={styles.feedback}>{item.content}</Text>
+    </View>
+  );
+  const handleGetProductDetailById = async (productId: number) => {
     try {
+      console.log(productId)
       setLoading(true);
-      const response = await axios.get(`${BASE_URL}product/${productId}`);
+
+      const response = await axios.get(`${BASE_URL}product/detail/${productId}`);
+
+      const mapColor = new Map<string, string[]>();
+      const mapSize = new Map<string, string[]>();
+      const mapProductTemp = new Map<string, PairValueProduct>();
+      const productDetailData = JSON.parse(JSON.stringify(response.data.data)) as ProductDetail;
+      console.log("response = " + productDetailData);
+
+      productDetailData.variants.forEach((value: ProductVariant) => {
+        if (mapColor.has(value.color_name)) {
+          const existingArray = mapColor.get(value.color_name);
+          if (existingArray) {
+            existingArray.push(value.size_name);
+            mapColor.set(value.color_name, existingArray);
+          }
+        } else {
+          mapColor.set(value.color_name, [value.size_name]);
+        }
+
+        if (mapSize.has(value.size_name)) {
+          const existingArray = mapColor.get(value.size_name);
+          if (existingArray) {
+            existingArray.push(value.color_name);
+            mapColor.set(value.size_name, existingArray);
+          }
+        } else {
+          mapSize.set(value.size_name, [value.color_name]);
+        }
+
+        mapProductTemp.set(`${value.color_name}_${value.size_name}`, { price: value.price, quantity: value.quantity })
+
+      })
+
+      setMapProduct(mapProductTemp)
+      console.log(mapProduct)
+      setSelectedPairProduct({
+        color_name: productDetailData.variants[0].color_name,
+        size_name: productDetailData.variants[0].size_name
+      })
+      setMapColorState(mapColor)
+      setMapSizeState(mapSize)
+      setSelectedVariant(productDetailData.variants[0]);
       if (response.data) {
         setTimeout(() => {
-          setProductDetail(response.data.data ? [response.data.data] : []);
+          setProductDetail(productDetailData);
+          setLoading(false)
         }, 2000)
       } else {
         setTimeout(() => {
-          setProductDetail([]);
+          setProductDetail(null);
+          setLoading(false)
         }, 2000)
       }
     } catch (error) {
       console.error("Error fetching product details:", error);
       setTimeout(() => {
         setLoading(false);
-        setProductDetail([]);
+        setProductDetail(null);
       }, 2000);
     } finally {
 
     }
   };
+  const handleGetProductDetailCommentById = async (productId: number) => {
+    try {
+      console.log(productId)
+      setLoading(true);
+      const response = await axios.get(`${BASE_URL}review/list-by-product/${productId}`);
+      const reviewList = JSON.parse(JSON.stringify(response.data.data))
+      setReviewList(reviewList);
+    }
+    catch (e) {
+      console.log("error = " + e);
 
+    }
+  };
   useEffect(() => {
-    handleGetProductDetailById(1);
+    handleGetProductDetailById(id);
+    handleGetProductDetailCommentById(id)
   }, []);
-
-  const handleSelectColor = (color) => setSelectedColor(color);
-  const handleSelectSize = (size) => setSelectedSize(size);
 
   if (loading) {
     return (
@@ -60,7 +146,7 @@ const ProductDetail = () => {
     );
   }
 
-  if (!productDetail.length) {
+  if (productDetail == null) {
     return (
       <View style={styles.loadingContainer}>
         <Text style={styles.message}>No get for data product detail.</Text>
@@ -68,13 +154,13 @@ const ProductDetail = () => {
     );
   }
 
-  const product = productDetail[0];
+  const product = productDetail;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Product Title and Rating */}
       <View style={styles.titleContainer}>
-        <Text style={styles.productTitle}>{product.name || "Product Name"}</Text>
+        <Text style={styles.productTitle}>{product.product_name || "Product Name"}</Text>
         <View style={styles.ratingContainer}>
           {[...Array(5)].map((_, index) => (
             <MaterialIcons key={index} name="star" color="#FFD700" size={20} />
@@ -85,7 +171,7 @@ const ProductDetail = () => {
 
       {/* Product Image */}
       <Image
-        source={{ uri: product.image || "https://via.placeholder.com/300x200" }}
+        source={{ uri: `${BASE_URL}/${productDetail.images[0]}` }}
         style={styles.productImage}
         resizeMode="contain"
       />
@@ -94,17 +180,25 @@ const ProductDetail = () => {
       <View style={styles.optionsContainer}>
         <Text style={styles.optionLabel}>Màu Sắc:</Text>
         <View style={styles.colorOptions}>
-          {["gray", "yellow", "blue"].map((color) => (
+
+          {Array.from(mapColorState?.keys() || []).map((variant, index) => (
             <TouchableOpacity
-              key={color}
-              onPress={() => handleSelectColor(color)}
+              key={index}
+              onPress={() => {
+
+                setSelectedPairProduct({
+                  color_name: variant,
+                  size_name: mapColorState?.has(selectedPairProduct!!.size_name) ? selectedPairProduct!!.size_name : mapColorState?.get(variant)!![0],
+                })
+              }}
               style={[
                 styles.colorCircle,
-                { backgroundColor: color },
-                selectedColor === color && styles.selectedColor,
+                { backgroundColor: variant },
+                selectedPairProduct?.color_name === variant && styles.selectedColor,
               ]}
             />
-          ))}
+          )
+          )}
         </View>
       </View>
 
@@ -112,22 +206,27 @@ const ProductDetail = () => {
       <View style={styles.optionsContainer}>
         <Text style={styles.optionLabel}>Kích Cỡ:</Text>
         <View style={styles.sizeOptions}>
-          {["S", "M", "L", "XL"].map((size) => (
+          {Array.from(mapColorState?.get(selectedPairProduct?.color_name ? selectedPairProduct?.color_name : "") || []).map((variant, index) => (
             <TouchableOpacity
-              key={size}
-              onPress={() => handleSelectSize(size)}
+              key={index}
+              onPress={() => {
+                setSelectedPairProduct({
+                  color_name: selectedPairProduct!!.color_name,
+                  size_name: variant
+                })
+              }}
               style={[
                 styles.sizeButton,
-                selectedSize === size && styles.selectedSize,
+                selectedPairProduct?.size_name === variant && styles.selectedSize,
               ]}
             >
               <Text
                 style={[
                   styles.sizeText,
-                  selectedSize === size && { color: "white" },
+                  selectedPairProduct?.size_name === variant && { color: "white" },
                 ]}
               >
-                {size}
+                {variant}
               </Text>
             </TouchableOpacity>
           ))}
@@ -135,7 +234,8 @@ const ProductDetail = () => {
       </View>
 
       {/* Price and Quantity */}
-      <Text style={styles.price}>{product.price || "199.000"} VND</Text>
+
+      <Text style={styles.price}>{mapProduct?.get(`${selectedPairProduct!!.color_name}_${selectedPairProduct!!.size_name}`)?.price || 0} VND</Text>
       <View style={styles.quantityContainer}>
         <Text style={styles.optionLabel}>Số Lượng:</Text>
         <View style={styles.quantityControls}>
@@ -143,17 +243,26 @@ const ProductDetail = () => {
             onPress={() => setQuantity(Math.max(1, quantity - 1))}
             style={styles.quantityButton}
           >
-            <Text style={styles.quantityText}>-</Text>
+            <Text style={styles.quantity}>-</Text>
           </TouchableOpacity>
           <Text style={styles.quantity}>{quantity}</Text>
           <TouchableOpacity
             onPress={() => setQuantity(quantity + 1)}
             style={styles.quantityButton}
           >
-            <Text style={styles.quantityText}>+</Text>
+            <Text style={styles.quantity}>+</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.stockText}>Còn {product.stock || 24} sản phẩm</Text>
+        <Text style={styles.stockText}>
+          Còn{" "}
+          {Math.max(
+            (mapProduct?.get(
+              `${selectedPairProduct?.color_name}_${selectedPairProduct?.size_name}`
+            )?.quantity || 0) - quantity,
+            0
+          )}{" "}
+          sản phẩm
+        </Text>
       </View>
 
       {/* Buttons */}
@@ -165,6 +274,9 @@ const ProductDetail = () => {
           <Text style={styles.addToCartText}>Thêm Giỏ Hàng</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Buttons */}
+
 
       {/* Description Section */}
       <View style={styles.descriptionContainer}>
@@ -186,20 +298,86 @@ const ProductDetail = () => {
           </View>
         )}
       </View>
+
+      {/* Review */}
+      <View style={styles.reviewContainerTmp}>
+        <View style={styles.reviewTitle}>
+          <Text style={styles.title}>Đánh Giá</Text>
+          <Link style={styles.reviewBtnText} href={`evaluation/${id}`}>
+            Xếp hạng và đánh giá
+          </Link>
+        </View>
+        {
+          reviewsList?.map((value, index) => (
+            renderItem(value)
+          ))
+        }
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  reviewTitle: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  reviewBtnText: {
+    color: "#008000",
+  },
+
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  reviewContainerTmp: {
+    marginTop: 20,
+  },
+  reviewContainer: {
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    paddingBottom: 10,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  userName: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  rating: {
+    flexDirection: "row",
+  },
+  date: {
+    fontSize: 12,
+    color: "#888",
+    marginTop: 4,
+  },
+  size: {
+    fontSize: 12,
+    color: "#555",
+    marginTop: 4,
+  },
+  feedback: {
+    fontSize: 14,
+    color: "#333",
+    marginTop: 8,
+  },
+
   container: {
     padding: 16,
     backgroundColor: "white",
   },
-  header: {
+  header1: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#008000",
-    padding: 16,
     borderRadius: 8,
   },
   headerText: {
@@ -308,6 +486,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  reviewButton: {
+    backgroundColor: "#008000",
+  },
   addToCartButton: {
     flex: 1,
     height: 50,
@@ -391,4 +572,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductDetail;
+export default ProductDetailScreen;

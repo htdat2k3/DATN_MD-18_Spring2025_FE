@@ -43,6 +43,9 @@ export default function RootLayout() {
           <Stack.Screen name="settings" options={{
             headerShown: false
           }} />
+          <Stack.Screen name="evaluation" options={{
+            headerShown: false
+          }} />
           <Stack.Screen name="notification" options={{
             headerShown: false
           }} />
