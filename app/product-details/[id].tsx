@@ -1,12 +1,4 @@
-import Center from "@/components/common/Center";
-import SharedLayout from "@/components/common/SharedLayout";
-import { ThemedText } from "@/components/common/ThemedText";
-import { ThemedView } from "@/components/common/ThemedView";
-import { ColorSelectorList } from "@/constants/Data";
-import { AntDesign } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,36 +6,75 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
+import { BASE_URL } from "@/constants/Colors";
+
 const ProductDetail = () => {
-
-  const { id } = useLocalSearchParams()
-
-  console.log("id = " + id);
-
-
+  const [productDetail, setProductDetail] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [expandedDescription, setExpandedDescription] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(null); // State cho màu sắc được chọn
-  const [selectedSize, setSelectedSize] = useState(null); // State cho kích cỡ được chọn
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  const handleGetProductDetailById = async (productId) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${BASE_URL}product/${productId}`);
+      if (response.data) {
+        setTimeout(() => {
+          setProductDetail(response.data.data ? [response.data.data] : []);
+        }, 2000)
+      } else {
+        setTimeout(() => {
+          setProductDetail([]);
+        }, 2000)
+      }
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+      setTimeout(() => {
+        setLoading(false);
+        setProductDetail([]);
+      }, 2000);
+    } finally {
 
+    }
+  };
 
-  function handleSelectColor(color: string): void {
-    setSelectedColor(color)
+  useEffect(() => {
+    handleGetProductDetailById(1);
+  }, []);
+
+  const handleSelectColor = (color) => setSelectedColor(color);
+  const handleSelectSize = (size) => setSelectedSize(size);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6200ea" />
+        <Text style={styles.message}>Loading...</Text>
+      </View>
+    );
   }
 
-  function handleSelectSize(size: string): void {
-    // throw new Error("Function not implemented.");
-    setSelectedSize(size)
+  if (!productDetail.length) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.message}>No get for data product detail.</Text>
+      </View>
+    );
   }
+
+  const product = productDetail[0];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-
       {/* Product Title and Rating */}
       <View style={styles.titleContainer}>
-        <Text style={styles.productTitle}>Áo Dài Tay</Text>
+        <Text style={styles.productTitle}>{product.name || "Product Name"}</Text>
         <View style={styles.ratingContainer}>
           {[...Array(5)].map((_, index) => (
             <MaterialIcons key={index} name="star" color="#FFD700" size={20} />
@@ -54,11 +85,10 @@ const ProductDetail = () => {
 
       {/* Product Image */}
       <Image
-        source={{ uri: "https://via.placeholder.com/300x200" }}
+        source={{ uri: product.image || "https://via.placeholder.com/300x200" }}
         style={styles.productImage}
         resizeMode="contain"
       />
-
 
       {/* Color Options */}
       <View style={styles.optionsContainer}>
@@ -105,7 +135,7 @@ const ProductDetail = () => {
       </View>
 
       {/* Price and Quantity */}
-      <Text style={styles.price}>199.000</Text>
+      <Text style={styles.price}>{product.price || "199.000"} VND</Text>
       <View style={styles.quantityContainer}>
         <Text style={styles.optionLabel}>Số Lượng:</Text>
         <View style={styles.quantityControls}>
@@ -113,17 +143,17 @@ const ProductDetail = () => {
             onPress={() => setQuantity(Math.max(1, quantity - 1))}
             style={styles.quantityButton}
           >
-            {/* <Text style={styles.quantityText}>-</Text> */}
+            <Text style={styles.quantityText}>-</Text>
           </TouchableOpacity>
           <Text style={styles.quantity}>{quantity}</Text>
           <TouchableOpacity
             onPress={() => setQuantity(quantity + 1)}
             style={styles.quantityButton}
           >
-            {/* <Text style={styles.quantityText}>+</Text> */}
+            <Text style={styles.quantityText}>+</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.stockText}>Còn 24 sản phẩm</Text>
+        <Text style={styles.stockText}>Còn {product.stock || 24} sản phẩm</Text>
       </View>
 
       {/* Buttons */}
@@ -152,30 +182,9 @@ const ProductDetail = () => {
         </TouchableOpacity>
         {expandedDescription && (
           <View style={styles.descriptionContent}>
-            <Text>Chất liệu: Vải mịn co giãn 4 chiều xịn sò nhé</Text>
+            <Text>{product.description || "Chất liệu: Vải mịn co giãn 4 chiều"}</Text>
           </View>
         )}
-      </View>
-
-      {/* Reviews Section */}
-      <View style={styles.reviewsContainer}>
-        <Text style={styles.reviewsTitle}>Đánh Giá</Text>
-        {[1, 2].map((_, index) => (
-          <View key={index} style={styles.reviewItem}>
-            <View style={styles.reviewHeader}>
-              <Text style={styles.reviewName}>Việt Vũ</Text>
-              <View style={styles.ratingContainer}>
-                {[...Array(5)].map((_, idx) => (
-                  <MaterialIcons key={idx} name="star" color="#FFD700" size={16} />
-                ))}
-              </View>
-            </View>
-            <Text style={styles.reviewText}>
-              Quần áo rất tốt, không bị co dãn với kích thước. Áo đẹp quá đã.
-            </Text>
-            <Text style={styles.reviewDate}>09/09/2024</Text>
-          </View>
-        ))}
       </View>
     </ScrollView>
   );
@@ -367,6 +376,18 @@ const styles = StyleSheet.create({
   selectedColor: {
     borderWidth: 2,
     borderColor: "#008000",
+  },
+  message: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#000",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white", // Optional: Adjust background color if needed
+    padding: 16, // Optional: Adds spacing for better alignment on smaller screens
   },
 });
 

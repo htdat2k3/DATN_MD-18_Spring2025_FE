@@ -6,16 +6,21 @@ export interface ScreenRouteType {
 
 export interface CategoryItemType {
   icon: string;
-  text: string;
-  path: string;
+  name: string;
+  category_id: string;
 }
 
 export interface NewProductItemType {
-  name: string;
-  price: number;
-  numReview: number;
-  rating: number;
-  path: string;
+  product_id: number;
+  product_name: string;
+  description: string;
+  price: number,
+  quantity: number,
+  category: string,
+  img: string[],
+  modified_date: Date,
+  created_date: Date,
+  isFavourite: boolean,
 }
 export interface Category {
   urlImage: string;
