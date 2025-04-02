@@ -75,6 +75,7 @@ export interface Order {
   created_date: Date,
   total_quantity: number,
   total_price: number,
+  status: string
 }
 /**
  *
