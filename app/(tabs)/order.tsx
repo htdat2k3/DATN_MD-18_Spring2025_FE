@@ -109,7 +109,7 @@ const OrderScreen = () => {
                 </View>
                 <View style={styles.orderDetails}>
                     <Text>Số lượng: {order.total_quantity.toString().padStart(2, '0')}</Text>
-                    <Text style={styles.totalAmount}>Tổng tiền: {formatMoney(order.total_price)}</Text>
+                    <Text style={styles.totalAmount}>Tổng tiền: {formatMoney(order.final_price)}</Text>
                 </View>
                 <View style={styles.orderActions}>
                     <Link style={styles.detailButton} href={`/detail-order/${order.order_id}`}>

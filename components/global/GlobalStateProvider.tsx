@@ -12,16 +12,20 @@ export interface User {
 
 interface GlobalState {
     user: User | null;
+    voucher_id: number | null
     cartsList: CartItem[] | [];
     saveUser: (userData: User) => void;
+    saveVoucherId: (data: number) => void;
     saveCartsList: (data: CartItem[]) => void;
 }
 
 // Default values for global state
 const defaultState: GlobalState = {
     user: null,
+    voucher_id: null,
     cartsList: [],
     saveUser: () => { },
+    saveVoucherId: () => { },
     saveCartsList: () => { }
 };
 
@@ -36,18 +40,24 @@ interface GlobalStateProviderProps {
 // Create the GlobalStateProvider component
 export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [voucher_id, setVoucherId] = useState<number | null>(null);
+
     const [cartsList, setCartsList] = useState<CartItem[]>([])
 
     const saveUser = (userData: User) => {
         setUser(userData);
     };
 
+    const saveVoucherId = (data: number) => {
+        setVoucherId(data)
+    }
+
     const saveCartsList = (cartDataList: CartItem[]) => {
         setCartsList(cartDataList)
     }
 
     return (
-        <GlobalStateContext.Provider value={{ user, cartsList, saveUser, saveCartsList }}>
+        <GlobalStateContext.Provider value={{ user, voucher_id, cartsList, saveUser, saveVoucherId, saveCartsList }}>
             {children}
         </GlobalStateContext.Provider>
     );

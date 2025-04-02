@@ -60,25 +60,24 @@ export default function NewProductList() {
             <ThemedView colorRole="surface" style={styles.itemWrapper}>
               <Image
                 style={styles.itemImg}
-                source={require("../../../assets/images/tshirt.png")}
+                source={{ uri: `${BASE_URL}/${item.current_images[0]}` }}
               />
               <ThemedText>{item.product_name}</ThemedText>
               {/* <ThemedText type="defaultSemiBold">
                 {formatNumberWithCommas(item.price) + " VND"}
               </ThemedText> */}
               <View style={styles.ratingSection}>
-                {Array(5)
-                  .fill(0)
-                  .map((_, subIndex) => (
-                    <AntDesign
-                      key={subIndex}
-                      name="star"
-                      size={16}
-                      color="#FFA235"
-                      style={{ marginRight: 3 }}
-                    />
-                  ))}
-                <ThemedText>({5})</ThemedText>
+                {Array.from({ length: item.rating }).map((_, subIndex) => (
+                  <AntDesign
+                    key={subIndex}
+                    name="star"
+                    size={16}
+                    color="#FFA235"
+                    style={{ marginRight: 3 }}
+                  />
+                ))}
+
+                <ThemedText>({item.rating})</ThemedText>
               </View>
 
               <TouchableOpacity onPress={() => {

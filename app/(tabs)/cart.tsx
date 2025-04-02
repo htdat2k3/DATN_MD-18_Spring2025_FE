@@ -1,7 +1,8 @@
 import { ThemedSafeAreaView } from "@/components/common/ThemedSafeAreaView";
 import { useGlobalState } from "@/components/global/GlobalStateProvider";
 import { BASE_URL } from "@/constants/Colors";
-import { MaterialIcons } from "@expo/vector-icons";
+import { formatMoney } from "@/constants/Utils";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { router, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -19,7 +20,9 @@ import {
 const CartScreen = () => {
 
     const [cartItems, setCartItems] = useState([])
-    const { user, saveCartsList } = useGlobalState()
+    const [codeVoucher, setCodeVoucher] = useState()
+    const [finalPrice, setFinalPrice] = useState(cartItems.reduce((total, item) => total + item.price * item.quantity, 0))
+    const { user, saveCartsList, saveVoucherId } = useGlobalState()
     const getAllCart = async () => {
         try {
             const response = await axios.get(`${BASE_URL}cart/cart-by-user/${user?.user_id}`);
@@ -53,7 +56,11 @@ const CartScreen = () => {
     }
     useEffect(() => {
         getAllCart()
-    })
+    }, []);
+
+    useEffect(() => {
+        setFinalPrice(cartItems.reduce((total, item) => total + item.price * item.quantity, 0))
+    }, [cartItems])
     const router = useRouter()
     const updateQuantity = async (id: number, type: string, quantity: number, user_id: number, variant_id: number) => {
 
@@ -95,8 +102,6 @@ const CartScreen = () => {
         ]);
     };
 
-    const calculateTotal = () =>
-        cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
     const renderItem = ({ item }) => (
         <View style={styles.cartItem}>
@@ -134,6 +139,33 @@ const CartScreen = () => {
         </View>
     );
 
+    const applyVoucherCode = async () => {
+        ///",
+
+        try {
+            const response = await axios.put(`${BASE_URL}order/apply-voucher`, {
+                voucher_code: codeVoucher,
+                total_price: finalPrice,
+                user_id: user?.user_id
+            });
+            // console.log(response.data.data);
+            // alert(response.data.message)
+            // console.log(response.data.message);
+            alert(response.data.message)
+            console.log(JSON.stringify(response.data.data));
+            if (response.data.data != null) {
+                console.log(JSON.parse(JSON.stringify(response.data.data)).voucher_id);
+                console.log(JSON.parse(JSON.stringify(response.data.data)).final_price);
+                saveVoucherId(JSON.parse(JSON.stringify(response.data.data)).voucher_id)
+                setFinalPrice(JSON.parse(JSON.stringify(response.data.data)).final_price)
+            }
+
+        }
+        catch (e) {
+            console.log("error = " + e.response.data.message);
+            alert(e.response.data.message)
+        }
+    }
     return (
         <ThemedSafeAreaView>
             <View style={styles.container}>
@@ -148,12 +180,21 @@ const CartScreen = () => {
                     contentContainerStyle={styles.cartList}
                 />
                 <View style={styles.footer}>
-                    <TextInput
-                        placeholder="Nhập mã khuyến mãi của bạn"
-                        style={styles.promoInput}
-                    />
+                    <View style={styles.container_footer}>
+                        <TextInput
+                            placeholder="Nhập mã khuyến mãi của bạn"
+                            style={styles.promoInput_footer}
+                            value={codeVoucher}
+                            onChangeText={setCodeVoucher}
+                        />
+                        <TouchableOpacity style={styles.checkoutButton_footer} onPress={() => {
+                            applyVoucherCode()
+                        }}>
+                            <AntDesign name="mobile1" />
+                        </TouchableOpacity>
+                    </View>
                     <Text style={styles.totalPrice}>
-                        Thành tiền: {calculateTotal().toLocaleString()} VND
+                        Thành tiền: {formatMoney(finalPrice)}
                     </Text>
                     <TouchableOpacity style={styles.checkoutButton} onPress={() => router.push("/checkout")}>
                         <Text style={styles.checkoutButtonText}>Thanh toán tất cả</Text>
@@ -269,6 +310,27 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 16,
         fontWeight: "bold",
+    },
+
+
+    container_footer: {
+        flexDirection: 'row', // Align items horizontally
+        justifyContent: 'space-between', // Distribute space evenly
+        alignItems: 'center', // Align items vertically in the center
+        margin: 10, // Add some margin around the container
+    },
+    promoInput_footer: {
+        flex: 1, // Allow the input to take up available space
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        marginRight: 10, // Add spacing between input and button
+    },
+    checkoutButton_footer: {
+        padding: 10,
+        backgroundColor: '#007BFF', // Button background color
+        borderRadius: 5,
     },
 });
 
