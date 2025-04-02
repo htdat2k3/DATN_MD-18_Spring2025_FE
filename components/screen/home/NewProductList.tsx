@@ -22,6 +22,7 @@ export default function NewProductList() {
       status: status
     });
     if (response.data != null) {
+      alert(response.data.message)
       const dataResult = productsList.map((data) => data.product_id === productId ? ({
         ...data, isFavourite: status,
       }) : data)

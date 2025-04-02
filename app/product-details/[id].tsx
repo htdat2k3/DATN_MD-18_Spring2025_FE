@@ -15,11 +15,13 @@ import { BASE_URL } from "@/constants/Colors";
 import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
 import { PairProduct, PairValueProduct, ProductDetail, ProductVariant, ReviewProduct } from "@/constants/Types";
 import { Link } from "expo-router";
+import { useGlobalState } from "@/components/global/GlobalStateProvider";
 type StringArrayMap = {
   [key: string]: string[];
 };
 const ProductDetailScreen = () => {
 
+  const { user } = useGlobalState()
   const { id } = useLocalSearchParams()
   const [productDetail, setProductDetail] = useState<ProductDetail>();
   const [quantity, setQuantity] = useState(1);
@@ -85,7 +87,7 @@ const ProductDetailScreen = () => {
           mapSize.set(value.size_name, [value.color_name]);
         }
 
-        mapProductTemp.set(`${value.color_name}_${value.size_name}`, { price: value.price, quantity: value.quantity })
+        mapProductTemp.set(`${value.color_name}_${value.size_name}`, { price: value.price, quantity: value.quantity, variant_id: value.variant_id })
 
       })
 
@@ -132,6 +134,24 @@ const ProductDetailScreen = () => {
 
     }
   };
+
+  const handleSendProductToCart = async (UserId: number, variant_id: number, quantity: number) => {
+    try {
+      const response = await axios.post(`${BASE_URL}cart/new`, {
+        user_id: UserId,
+        variant_id: variant_id,
+        quantity: quantity
+      });
+
+      alert(response.data.message)
+
+    }
+    catch (e) {
+      console.log("error = " + e);
+
+    }
+  }
+
   useEffect(() => {
     handleGetProductDetailById(id);
     handleGetProductDetailCommentById(id)
@@ -270,7 +290,11 @@ const ProductDetailScreen = () => {
         <TouchableOpacity style={styles.bookmarkButton}>
           <MaterialIcons name="bookmark-border" size={24} color="green" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.addToCartButton}>
+        <TouchableOpacity style={styles.addToCartButton} onPress={() => {
+          handleSendProductToCart(user?.user_id || 0, (mapProduct?.get(
+            `${selectedPairProduct?.color_name}_${selectedPairProduct?.size_name}`
+          )?.variant_id || 0), quantity)
+        }}>
           <Text style={styles.addToCartText}>Thêm Giỏ Hàng</Text>
         </TouchableOpacity>
       </View>

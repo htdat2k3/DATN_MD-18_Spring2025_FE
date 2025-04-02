@@ -47,9 +47,50 @@ export interface PairProduct {
   size_name: string
 }
 
+export interface CartItem {
+  cart_id: number;
+  color_name: string;
+  price: number;
+  product_id: number;
+  product_image: string;
+  product_name: string;
+  quantity: number;
+  size_name: string;
+  stock: number;
+  variant_id: number;
+};
+/**
+ *
+ *  "product_id": 1,
+            "user_id": 1,
+            "product_name": "Áo cộc",
+            "description": "áo",
+            "category_id": 1,
+            "image_urls": [
+                "images/1742615152518.PNG",
+                "",
+                "images/1742615152520.PNG",
+                "",
+                "images/1742615152521.PNG",
+                ""
+            ],
+            "total_records": 1
+ */
+
+export interface ProductFavourite {
+  product_id: number;
+  user_id: number;
+  product_name: string;
+  description: string;
+  category_id: number;
+  image_urls: string[];
+  total_records: number;
+}
+
 export interface PairValueProduct {
   price: number,
-  quantity: number
+  quantity: number,
+  variant_id: number
 }
 
 /*

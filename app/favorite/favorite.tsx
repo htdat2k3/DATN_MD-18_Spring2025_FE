@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import { useGlobalState } from "@/components/global/GlobalStateProvider";
+import { BASE_URL } from "@/constants/Colors";
+import { ProductFavourite } from "@/constants/Types";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -9,92 +13,60 @@ import {
 } from "react-native";
 
 const FavoriteScreen = () => {
-    const [favorites, setFavorites] = useState([
-        {
-            id: "1",
-            name: "Áo Phông Blue",
-            price: 200000,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "2",
-            name: "Bộ quần áo in hình núi",
-            price: 350000,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "3",
-            name: "Áo dài tay Rhodi",
-            price: 150000,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "4",
-            name: "Áo phông Rhodi",
-            price: 200000,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "5",
-            name: "Áo dài tay mùa đông",
-            price: 239000,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "6",
-            name: "Áo dài tay mùa đông",
-            price: 239000,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "7",
-            name: "Áo dài tay mùa đông",
-            price: 239000,
-            image: "https://via.placeholder.com/150",
-        },
-        {
-            id: "8",
-            name: "Áo dài tay mùa đông",
-            price: 239000,
-            image: "https://via.placeholder.com/150",
-        },
-    ]);
+    const [favorites, setFavorites] = useState([]);
+    const { user } = useGlobalState()
 
-    const handleRemove = (id) => {
-        setFavorites(favorites.filter((item) => item.id !== id));
+    useEffect(() => {
+        getAllProductFavorite(user?.user_id || 1);
+    }, [])
+    const handleRemove = (id: number, user_id: number) => {
+        // setFavorites(favorites.filter((item) => item.id !== id));
     };
 
-    const handleAddAllToCart = () => {
-        alert("Tất cả sản phẩm đã được thêm vào giỏ hàng!");
+    const getAllProductFavorite = async (user_id: number) => {
+        try {
+            const response = await axios.get(`${BASE_URL}product/list_like/${user_id}`);
+            // console.log("dataRes = " + JSON.stringify(response.data.data));
+            alert(response.data.message)
+            const dataRes = JSON.parse(JSON.stringify(response.data.data)) as ProductFavourite
+            setFavorites(JSON.parse(JSON.stringify(response.data.data)))
+        }
+        catch (e) {
+            console.log("error = " + e);
+        }
     };
 
-    const renderItem = ({ item }) => (
-        <View style={styles.itemContainer}>
-            <Image source={{ uri: item.image }} style={styles.itemImage} />
-            <View style={styles.itemDetails}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemPrice}>{item.price.toLocaleString()} VND</Text>
+    const renderItem = (item: ProductFavourite) => {
+        console.log("item = " + item.image_urls);
+
+        return (
+            <View style={styles.itemContainer}>
+                {/* <Image source={{ uri: `${BASE_URL}/${item.image_urls[0]}` }} style={styles.itemImage} /> */}
+                <View style={styles.itemDetails}>
+                    <Text style={styles.itemName}>{item.product_name}</Text>
+                    <Text style={styles.itemPrice}>{item.description}</Text>
+                </View>
+                <View style={styles.itemActions}>
+                    <TouchableOpacity style={styles.actionButton}>
+                        <Text style={styles.cartIcon}>🛒</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleRemove(item.product_id, item.user_id)} style={styles.actionButton}>
+                        <Text style={styles.removeIcon}>❌</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <View style={styles.itemActions}>
-                <TouchableOpacity style={styles.actionButton}>
-                    <Text style={styles.cartIcon}>🛒</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleRemove(item.id)} style={styles.actionButton}>
-                    <Text style={styles.removeIcon}>❌</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
+        )
+    };
 
     return (
         <View style={styles.container}>
             <FlatList
                 data={favorites}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.product_id}
                 contentContainerStyle={styles.listContainer}
             />
-            <TouchableOpacity onPress={handleAddAllToCart} style={styles.addAllButton}>
+            <TouchableOpacity onPress={() => { }} style={styles.addAllButton}>
                 <Text style={styles.addAllText}>Thêm tất cả</Text>
             </TouchableOpacity>
         </View>
@@ -120,6 +92,7 @@ const styles = StyleSheet.create({
         paddingBottom: 16,
     },
     itemContainer: {
+        marginTop: 10,
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#F9F9F9",
