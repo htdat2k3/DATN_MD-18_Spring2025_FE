@@ -48,6 +48,7 @@ export interface ProductDetail {
   description: string;
   images: string[],
   category_id: number;
+  rating: number,
   modified_date: Date;
   created_date: Date;
   variants: ProductVariant[]
@@ -116,7 +117,7 @@ export interface ProductFavourite {
   total_records: number;
 }
 /**
- * 
+ *
  *  "review_id": 1,
             "user_name": "vuongnguyen",
             "product_id": 1,

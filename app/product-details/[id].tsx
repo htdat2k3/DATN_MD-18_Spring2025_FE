@@ -183,10 +183,11 @@ const ProductDetailScreen = () => {
       <View style={styles.titleContainer}>
         <Text style={styles.productTitle}>{product.product_name || "Product Name"}</Text>
         <View style={styles.ratingContainer}>
-          {[...Array(5)].map((_, index) => (
+          {Array(productDetail.rating).fill(0).map((_, index) => (
             <MaterialIcons key={index} name="star" color="#FFD700" size={20} />
           ))}
-          <Text style={styles.ratingText}>5.0</Text>
+
+          <Text style={styles.ratingText}>{productDetail.rating}</Text>
         </View>
       </View>
 
