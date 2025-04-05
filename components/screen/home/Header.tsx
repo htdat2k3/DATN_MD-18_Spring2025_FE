@@ -16,7 +16,9 @@ export default function Header() {
         <MaterialIcons name="search" size={30} color={Colors.dark.primary} />
         <ThemedInput
           style={styles.headerInput}
-          onChangeText={(e) => setSearchValue(e)}
+          onFocus={() => {
+            router.push("/all-product")
+          }}
           value={searchValue}
           placeholder="Tìm kiếm..."
           keyboardType="default"
