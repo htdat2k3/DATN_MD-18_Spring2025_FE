@@ -159,12 +159,14 @@ const CartScreen = () => {
             // alert(response.data.message)
             // console.log(response.data.message);
             alert(response.data.message)
-            console.log(JSON.stringify(response.data.data));
-            if (response.data.data != null) {
+            console.log(JSON.stringify(response.status));
+            if (response.status == 200) {
                 console.log(JSON.parse(JSON.stringify(response.data.data)).voucher_id);
                 console.log(JSON.parse(JSON.stringify(response.data.data)).final_price);
                 saveVoucherId(JSON.parse(JSON.stringify(response.data.data)).voucher_id)
                 setFinalPrice(JSON.parse(JSON.stringify(response.data.data)).final_price)
+            } else {
+                saveVoucherId(-1)
             }
 
         }
