@@ -102,13 +102,6 @@ export default function Login() {
 
                 />
             </View>
-            <View
-                style={{
-                    flexDirection: 'row',
-                    marginTop: 10,
-                }}>
-                <ThemedText type="default">Hoặc đăng nhập với google</ThemedText>
-            </View>
         </ThemedView>
     );
 }
