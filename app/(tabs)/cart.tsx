@@ -15,6 +15,9 @@ import {
     StyleSheet,
     FlatList,
     Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Keyboard,
 } from "react-native";
 
 const CartScreen = () => {
@@ -172,40 +175,61 @@ const CartScreen = () => {
     }
     return (
         <ThemedSafeAreaView>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Giỏ hàng</Text>
-                </View>
-                <FlatList
-                    data={cartItems}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.cart_id}
-                    contentContainerStyle={styles.cartList}
-                />
-                <View style={styles.footer}>
-                    <View style={styles.container_footer}>
-                        <TextInput
-                            placeholder="Nhập mã khuyến mãi của bạn"
-                            style={styles.promoInput_footer}
-                            value={codeVoucher}
-                            onChangeText={setCodeVoucher}
-                        />
-                        <TouchableOpacity style={styles.checkoutButton_footer} onPress={() => {
-                            applyVoucherCode()
-                        }}>
-                            <AntDesign name="mobile1" />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+            >
+                <View style={styles.container}>
+                    <View style={styles.header}>
+                        <Text style={styles.headerText}>Giỏ hàng</Text>
+                    </View>
+
+                    <FlatList
+                        data={cartItems}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.cart_id}
+                        contentContainerStyle={styles.cartList}
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}
+                    />
+
+                    <View style={styles.footer}>
+                        <View style={styles.container_footer}>
+                            <TextInput
+                                placeholder="Nhập mã khuyến mãi của bạn"
+                                style={styles.promoInput_footer}
+                                value={codeVoucher}
+                                onChangeText={setCodeVoucher}
+                                onSubmitEditing={Keyboard.dismiss}
+                                returnKeyType="done"
+                            />
+                            <TouchableOpacity
+                                style={styles.checkoutButton_footer}
+                                onPress={() => {
+                                    Keyboard.dismiss();
+                                    applyVoucherCode();
+                                }}
+                            >
+                                <AntDesign name="mobile1" />
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={styles.totalPrice}>
+                            Thành tiền: {formatMoney(finalPrice)}
+                        </Text>
+                        <TouchableOpacity
+                            style={styles.checkoutButton}
+                            onPress={() => {
+                                Keyboard.dismiss();
+                                router.push("/checkout");
+                            }}
+                        >
+                            <Text style={styles.checkoutButtonText}>Thanh toán tất cả</Text>
                         </TouchableOpacity>
                     </View>
-                    <Text style={styles.totalPrice}>
-                        Thành tiền: {formatMoney(finalPrice)}
-                    </Text>
-                    <TouchableOpacity style={styles.checkoutButton} onPress={() => router.push("/checkout")}>
-                        <Text style={styles.checkoutButtonText}>Thanh toán tất cả</Text>
-                    </TouchableOpacity>
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </ThemedSafeAreaView>
-
     );
 };
 
