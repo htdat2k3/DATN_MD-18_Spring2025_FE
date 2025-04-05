@@ -11,7 +11,7 @@ const SuccessScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Ionicons name="checkmark-circle" size={100} color="#28a745" style={styles.icon} />
+            <Ionicons name="checkmark-circle-outline" size={100} color="#28a745" style={styles.icon} />
             <Text style={styles.title}>Thành Công!</Text>
             <Text style={styles.description}>
                 Đơn hàng của bạn sẽ được giao sớm. Cảm ơn bạn đã chọn ứng dụng của chúng tôi!

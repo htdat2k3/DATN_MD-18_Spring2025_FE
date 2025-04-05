@@ -65,7 +65,7 @@ const ProductDetailScreen = () => {
       const mapSize = new Map<string, string[]>();
       const mapProductTemp = new Map<string, PairValueProduct>();
       const productDetailData = JSON.parse(JSON.stringify(response.data.data)) as ProductDetail;
-      console.log("response = " + productDetailData);
+      console.log("response = " + JSON.stringify(productDetailData));
 
       productDetailData.variants.forEach((value: ProductVariant) => {
         if (mapColor.has(value.color_name)) {
@@ -99,6 +99,10 @@ const ProductDetailScreen = () => {
         size_name: productDetailData.variants[0].size_name
       })
       setMapColorState(mapColor)
+      console.log("mapSize = " + JSON.stringify(mapSize));
+      console.log("mapColor = " + JSON.stringify(mapColor));
+      console.log("mapSizeState = " + JSON.stringify(mapSizeState));
+      console.log("mapColorState = " + JSON.stringify(mapColorState));
       setMapSizeState(mapSize)
       setSelectedVariant(productDetailData.variants[0]);
       if (response.data) {
