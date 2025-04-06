@@ -11,7 +11,7 @@ const FailureScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Ionicons name="checkmark-circle" size={100} color="FF0000" style={styles.icon} />
+            <Ionicons name="checkmark-circle-outline" size={100} color="FF0000" style={styles.icon} />
             <Text style={styles.title}>Thất bại</Text>
             <Text style={styles.description}>
                 Đơn hàng của bạn đã bị hủy do bạn đã không thanh toán. Vui lòng bạn có thể quay lại chọn sản phẩm yêu thích để thanh toán. Cảm ơn bạn đã chọn ứng dụng của chúng tôi!

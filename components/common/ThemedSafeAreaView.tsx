@@ -6,6 +6,7 @@ export type Props = ViewProps & {
   lightColor?: string;
   darkColor?: string;
   colorRole?: keyof typeof Colors.light & keyof typeof Colors.dark;
+  defaultTop?: number
 };
 
 export function ThemedSafeAreaView({
@@ -13,11 +14,12 @@ export function ThemedSafeAreaView({
   lightColor,
   darkColor,
   colorRole,
+  defaultTop,
   ...otherProps
 }: Props) {
   const backgroundColor = useThemeColor(
     { light: lightColor, dark: darkColor },
-    colorRole ?? "background"
+    colorRole ?? "background",
   );
 
   return (
@@ -26,7 +28,7 @@ export function ThemedSafeAreaView({
         {
           backgroundColor: backgroundColor,
           flex: 1,
-          marginTop: StatusBar.currentHeight,
+          marginTop: defaultTop ?? StatusBar.currentHeight,
         },
         style,
       ]}

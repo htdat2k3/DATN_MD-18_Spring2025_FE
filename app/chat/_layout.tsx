@@ -5,12 +5,8 @@ import { Stack } from 'expo-router'
 export default function RootLayout() {
     return (
         <Stack>
-            <Stack.Screen name='checkout' options={{
-                title: "Thanh toán", headerTitleAlign: 'center', headerStyle: {
-                    backgroundColor: '#00A65E',
-
-                },
-                headerTintColor: "white"
+            <Stack.Screen name='chat' options={{
+                headerShown: false
             }} />
         </Stack>
     )
