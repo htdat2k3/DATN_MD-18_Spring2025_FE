@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import axios from "axios";
 import { BASE_URL } from "@/constants/Colors";
 import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
 import { PairProduct, PairValueProduct, ProductDetail, ProductVariant, ReviewProduct } from "@/constants/Types";
-import { Link } from "expo-router";
+import { Link, useFocusEffect } from "expo-router";
 import { useGlobalState } from "@/components/global/GlobalStateProvider";
 import { formatMoney } from "@/constants/Utils";
 type StringArrayMap = {
@@ -161,6 +161,20 @@ const ProductDetailScreen = () => {
     handleGetProductDetailById(id);
     handleGetProductDetailCommentById(id)
   }, []);
+
+  // Thêm useFocusEffect để reload data khi focus vào màn hình
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Screen focused - Reloading product details");
+      // Gọi lại các hàm fetch data ở đây
+      handleGetProductDetailById(id);
+      handleGetProductDetailCommentById(id);
+      return () => {
+        // Cleanup nếu cần
+        console.log("Screen unfocused");
+      };
+    }, [id]) // Dependency array để chỉ chạy khi focus thay đổi
+  );
 
   if (loading) {
     return (

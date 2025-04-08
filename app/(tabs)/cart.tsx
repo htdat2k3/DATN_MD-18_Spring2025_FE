@@ -76,7 +76,7 @@ const CartScreen = () => {
             item.cart_id === id
                 ? {
                     ...item,
-                    quantity: type === "increase" ? item.quantity : Math.max(1, item.quantity),
+                    quantity: type === "increase" ? item.quantity + 1 : Math.max(1, item.quantity - 1),
                 }
                 : item
         );
@@ -114,9 +114,10 @@ const CartScreen = () => {
         <View style={styles.cartItem}>
             <Image source={{ uri: `${BASE_URL}/${item.product_image}` }} style={styles.productImage} />
             <View style={styles.productDetails}>
-                <Text style={styles.productName}>
-                    {item.product_name} - ({item.color_name})
-                </Text>
+                <View style={styles.productNameContainer}>
+                    <Text style={styles.productName}>{item.product_name}</Text>
+                    <View style={[styles.circle, { backgroundColor: item.color_name }]} />
+                </View>
                 <Text style={styles.productPrice}>
                     {item.price.toLocaleString()} VND
                 </Text>
@@ -360,6 +361,17 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#007BFF', // Button background color
         borderRadius: 5,
+    },
+    circle: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        backgroundColor: '#28a745',
+    },
+    productNameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,  // Tạo khoảng cách giữa text và circle
     },
 });
 
