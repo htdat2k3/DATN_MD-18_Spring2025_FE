@@ -51,7 +51,8 @@ export interface ProductDetail {
   rating: number,
   modified_date: Date;
   created_date: Date;
-  variants: ProductVariant[]
+  variants: ProductVariant[],
+  isFavourite : boolean 
 }
 
 export interface PairProduct {

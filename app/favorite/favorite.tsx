@@ -2,6 +2,7 @@ import { useGlobalState } from "@/components/global/GlobalStateProvider";
 import { BASE_URL } from "@/constants/Colors";
 import { ProductFavourite } from "@/constants/Types";
 import axios from "axios";
+import { Link, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
     View,
@@ -15,14 +16,25 @@ import {
 const FavoriteScreen = () => {
     const [favorites, setFavorites] = useState([]);
     const { user } = useGlobalState()
-
+    const router  = useRouter()
     useEffect(() => {
         getAllProductFavorite(user?.user_id || 1);
     }, [])
-    const handleRemove = (id: number, user_id: number) => {
+    const handleRemove = async (id: number, user_id: number) => {
         // setFavorites(favorites.filter((item) => item.id !== id));
+        const response = await axios.post(`${BASE_URL}product/like`, {
+            product_id: id,
+            user_id: user_id,
+            status: false
+          });
+          if (response.data != null) {
+            alert(response.data.message)
+            const dataResult = Array.from(favorites).filter((data) => data.product_id != id)
+            setFavorites(dataResult)
+          }
     };
 
+   
     const getAllProductFavorite = async (user_id: number) => {
         try {
             const response = await axios.get(`${BASE_URL}product/list_like/${user_id}`);
@@ -43,21 +55,25 @@ const FavoriteScreen = () => {
         console.log("item = " + item.product_name);
 
         return (
-            <View style={styles.itemContainer}>
-                <Image source={{ uri: `${BASE_URL}/${item.image_urls[0]}` }} style={styles.itemImage} />
-                <View style={styles.itemDetails}>
-                    <Text style={styles.itemName}>{item.product_name}</Text>
-                    <Text style={styles.itemPrice}>{item.description}</Text>
+            // <Link key={index} href={`product-details/${item.product_id}`}
+            //     <
+            // </Link>
+
+            <Link href={`product-details/${item.product_id}`} style={styles.itemContainer}>
+                <View >
+                    <Image source={{ uri: `${BASE_URL}/${item.image_urls[0]}` }} style={styles.itemImage} />
+                    <View style={styles.itemDetails}>
+                        <Text style={styles.itemName}>{item.product_name}</Text>
+                        <Text style={styles.itemPrice}>{item.description}</Text>
+                    </View>
+                    <View style={styles.itemActions}>
+                        <TouchableOpacity onPress={() => handleRemove(item.product_id, item.user_id)} style={styles.actionButton}>
+                            <Text style={styles.removeIcon}>❌</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={styles.itemActions}>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <Text style={styles.cartIcon}>🛒</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleRemove(item.product_id, item.user_id)} style={styles.actionButton}>
-                        <Text style={styles.removeIcon}>❌</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            </Link>
+
         )
     };
 
@@ -68,9 +84,6 @@ const FavoriteScreen = () => {
                 renderItem={({ item }) => renderItem(item)}
                 contentContainerStyle={styles.listContainer}
             />
-            <TouchableOpacity onPress={() => { }} style={styles.addAllButton}>
-                <Text style={styles.addAllText}>Thêm tất cả</Text>
-            </TouchableOpacity>
         </View>
     );
 };

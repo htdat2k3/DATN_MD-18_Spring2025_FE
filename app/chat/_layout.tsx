@@ -6,7 +6,11 @@ export default function RootLayout() {
     return (
         <Stack>
             <Stack.Screen name='chat' options={{
-                headerShown: false
+                title: "Chat", headerTitleAlign: 'center', headerStyle: {
+                    backgroundColor: '#00A65E',
+          
+                  },
+                  headerTintColor: "white"
             }} />
         </Stack>
     )

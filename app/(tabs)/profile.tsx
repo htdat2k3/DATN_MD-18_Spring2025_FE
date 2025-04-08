@@ -22,7 +22,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Thông tin tài khoản</Text>
           <TouchableOpacity>
-            <Ionicons name="log-out-outline" size={24} color="white" />
+            {/* <Ionicons name="log-out-outline" size={24} color="white" /> */}
           </TouchableOpacity>
         </View>
 

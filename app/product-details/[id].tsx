@@ -35,6 +35,21 @@ const ProductDetailScreen = () => {
   const [reviewsList, setReviewList] = useState<ReviewProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleLikeProduct = async (productId: number, userId: number, status: boolean) => {
+    const response = await axios.post(`${BASE_URL}product/like`, {
+      product_id: productId,
+      user_id: userId,
+      status: status
+    });
+    if (response.data != null) {
+      alert(response.data.message)
+      // const dataResult = productsList.map((data) => data.product_id === productId ? ({
+      //   ...data, isFavourite: status,
+      // }) : data)
+      // setProductsList(dataResult)
+      
+    }
+  }
   const renderItem = (item: ReviewProduct) => (
     <View style={styles.reviewContainer} key={item.review_id}>
       {/* User and Rating */}
@@ -59,7 +74,10 @@ const ProductDetailScreen = () => {
       console.log(productId)
       setLoading(true);
 
-      const response = await axios.get(`${BASE_URL}product/detail/${productId}`);
+      const response = await axios.post(`${BASE_URL}product/detail`, {
+        user_id : user?.user_id,
+        product_id : productId
+      });
 
       const mapColor = new Map<string, string[]>();
       const mapSize = new Map<string, string[]>();
@@ -307,8 +325,10 @@ const ProductDetailScreen = () => {
 
       {/* Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.bookmarkButton}>
-          <MaterialIcons name="bookmark-border" size={24} color="green" />
+        <TouchableOpacity style={styles.bookmarkButton} onPress={() => {
+              handleLikeProduct(product.product_id, user?.user_id, !productDetail.isFavourite)
+        }}>
+          {productDetail.isFavourite == true ? <MaterialIcons name="bookmark-border" size={24} color="red" /> : <MaterialIcons name="bookmark-border" size={24} color="green" />}
         </TouchableOpacity>
         <TouchableOpacity style={styles.addToCartButton} onPress={() => {
           handleSendProductToCart(user?.user_id || 0, (mapProduct?.get(
