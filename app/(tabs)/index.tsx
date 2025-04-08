@@ -4,8 +4,9 @@ import Header from "@/components/screen/home/Header";
 import CategoryList from "@/components/screen/home/CategoryList";
 import NewProductList from "@/components/screen/home/NewProductList";
 import PopularProductList from "@/components/screen/home/PopularProductList";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FlatList, Image } from "react-native";
+import { useFocusEffect } from 'expo-router';
 
 const { width } = Dimensions.get("window");
 
@@ -18,15 +19,23 @@ const sliderImages = [
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
   const flatListRef = useRef(null);
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    // Simulate an async action such as fetching data
-    setTimeout(() => {
+    try {
+      setRefreshKey(prev => prev + 1);
+    } finally {
       setRefreshing(false);
-    }, 2000);
-  };
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      setRefreshKey(prev => prev + 1);
+    }, [])
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -80,9 +89,9 @@ export default function HomeScreen() {
               ))}
             </View>
           </View>
-          <CategoryList />
-          <NewProductList />
-          <PopularProductList />
+          <CategoryList refreshKey={refreshKey} />
+          <NewProductList refreshKey={refreshKey} />
+          <PopularProductList refreshKey={refreshKey} />
         </View>
       </ScrollView>
     </ThemedSafeAreaView>

@@ -50,7 +50,19 @@ const OrderScreen = () => {
             console.log("error = " + e);
         }
     }
-
+    const handleSendTransferringOrder = async () => {
+        try {
+            const response = await axios.post(`${BASE_URL}order/orders-by-user/`, {
+                user_id: user?.user_id,
+                status: "shipping"
+            });
+            setOrders(JSON.parse(JSON.stringify(response.data.data)))
+            console.log("pending = " + JSON.stringify(response.data.data));
+        }
+        catch (e) {
+            console.log("error = " + e);
+        }
+    }
     const handleSendCancelOrder = async () => {
         try {
             const response = await axios.post(`${BASE_URL}order/orders-by-user/`, {
@@ -88,6 +100,8 @@ const OrderScreen = () => {
     useEffect(() => {
         if (activeTab == "ĐÃ GIAO") {
             handleSendCompletedOrder()
+        } else if (activeTab == "ĐANG GIAO HÀNG") {
+            handleSendTransferringOrder()
         } else if (activeTab == "ĐANG XỬ LÝ") {
             handleSendPendingOrder()
         } else {
@@ -128,7 +142,7 @@ const OrderScreen = () => {
         <ThemedSafeAreaView>
             <View style={styles.container}>
                 <View style={styles.tabContainer}>
-                    {['ĐÃ GIAO', 'ĐANG XỬ LÝ', 'ĐÃ HỦY'].map((tab) => (
+                    {['ĐÃ GIAO','ĐANG GIAO HÀNG', 'ĐANG XỬ LÝ', 'ĐÃ HỦY'].map((tab) => (
                         <TouchableOpacity
                             key={tab}
                             style={[

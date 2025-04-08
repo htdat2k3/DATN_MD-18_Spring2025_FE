@@ -5,13 +5,17 @@ import { CategoryData } from "@/constants/Data";
 import { CategoryItemType } from "@/constants/Types";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import axios from "axios";
-import { Link } from "expo-router";
-import { useEffect, useState } from "react";
+import { Link, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, ListRenderItemInfo, StyleSheet, View } from "react-native";
 
-export default function CategoryList() {
+interface CategoryListProps {
+  refreshKey: number;
+}
 
+const CategoryList = ({ refreshKey }: CategoryListProps) => {
   const [categoryList, useCategoryList] = useState<CategoryItemType[]>([])
+
   const handleCallCategoryList = async () => {
     console.log("------> handleCallCategoryList");
     try {
@@ -21,11 +25,21 @@ export default function CategoryList() {
       console.error("Invalid JSON string", error);
     }
   }
-  useEffect(() => {
-    console.log("====> CALL API");
 
-    handleCallCategoryList()
-  }, [])
+  // Gọi API mỗi khi refreshKey thay đổi
+  // useEffect(() => {
+  //   handleCallCategoryList();
+  // }, [refreshKey]);
+
+  useFocusEffect(
+    useCallback(() => {
+      handleCallCategoryList();
+
+      return () => {
+        console.log("Home screen unfocused");
+      };
+    }, [refreshKey])
+  );
 
   return (
     <View style={styles.container}>
@@ -74,3 +88,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+export default CategoryList;

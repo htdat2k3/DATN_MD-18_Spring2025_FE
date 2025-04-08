@@ -6,12 +6,15 @@ import { NewProductItemType, ProductPopular } from "@/constants/Types";
 import { formatNumberWithCommas } from "@/constants/Utils";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
-import { Link } from "expo-router";
-import { useEffect, useState } from "react";
+import { Link, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 
-export default function PopularProductList() {
+interface PopularProductListProps {
+  refreshKey: number;
+}
 
+const PopularProductList = ({ refreshKey }: PopularProductListProps) => {
   const [productsList, setProductsList] = useState<ProductPopular[]>([])
 
   const handleGetProductsList = async () => {
@@ -23,10 +26,18 @@ export default function PopularProductList() {
       console.error("Invalid JSON string", error);
     }
   }
-  useEffect(() => {
-    handleGetProductsList()
-  }, [])
+  // useEffect(() => {
+  //   handleGetProductsList()
+  // }, [])
 
+  useFocusEffect(
+    useCallback(() => {
+      handleGetProductsList()
+      return () => {
+        console.log("Home screen unfocused");
+      };
+    }, [refreshKey])
+  );
   return (
     <View style={styles.container}>
       <View style={styles.titleSection}>
@@ -112,3 +123,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+export default PopularProductList;
