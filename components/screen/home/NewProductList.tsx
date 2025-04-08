@@ -7,12 +7,15 @@ import { NewProductItemType } from "@/constants/Types";
 import { formatNumberWithCommas } from "@/constants/Utils";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
-import { Link } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { Link, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
-export default function NewProductList() {
+interface NewProductListProps {
+  refreshKey: number;
+}
 
+const NewProductList = ({ refreshKey }: NewProductListProps) => {
   const { user } = useGlobalState()
   const [productsList, setProductsList] = useState<NewProductItemType[]>([])
   const handleLikeProduct = async (productId: number, userId: number, status: boolean) => {
@@ -40,10 +43,18 @@ export default function NewProductList() {
       console.error("Invalid JSON string", error);
     }
   }
-  useEffect(() => {
-    handleGetProductsList()
-    //         useCategoryList(dataResult)
-  }, [])
+  // useEffect(() => {
+  //   handleGetProductsList()
+  //   //         useCategoryList(dataResult)
+  // }, [])
+  useFocusEffect(
+    useCallback(() => {
+      handleGetProductsList()
+      return () => {
+        console.log("Home screen unfocused");
+      };
+    }, [refreshKey])
+  );
   const memoizedItems = useMemo(() => productsList, [productsList]);
 
   return (
@@ -146,3 +157,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+export default NewProductList;
