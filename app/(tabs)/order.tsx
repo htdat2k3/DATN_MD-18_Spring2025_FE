@@ -122,9 +122,11 @@ const OrderScreen = () => {
                     <Text style={styles.totalAmount}>Tổng tiền: {formatMoney(order.final_price)}</Text>
                 </View>
                 <View style={styles.orderActions}>
-                    <Link style={styles.detailButton} href={`/detail-order/${order.order_id}`}>
+                    {
+                        activeTab != "ĐÃ HỦY"  && <Link style={styles.detailButton} href={`/detail-order/${order.order_id}`}>
                         <Text style={styles.detailButtonText}>Chi tiết</Text>
                     </Link>
+                    }
                     {
                         activeTab == "ĐANG XỬ LÝ" && order.status == "pending" && <TouchableOpacity
                             onPress={() => { handleCancelOrder(order.order_id) }}

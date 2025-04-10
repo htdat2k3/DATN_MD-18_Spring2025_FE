@@ -36,20 +36,29 @@ const ProductDetailScreen = () => {
   const [loading, setLoading] = useState(true);
 
   const handleLikeProduct = async (productId: number, userId: number, status: boolean) => {
-    const response = await axios.post(`${BASE_URL}product/like`, {
-      product_id: productId,
-      user_id: userId,
-      status: status
-    });
-    if (response.data != null) {
-      alert(response.data.message)
-      // const dataResult = productsList.map((data) => data.product_id === productId ? ({
-      //   ...data, isFavourite: status,
-      // }) : data)
-      // setProductsList(dataResult)
-      
+    try {
+      const response = await axios.post(`${BASE_URL}product/like`, {
+        product_id: productId,
+        user_id: userId,
+        status: status
+      });
+
+      if (response.data) {
+        // Cập nhật trạng thái yêu thích ngay lập tức trong UI
+        setProductDetail(prev => prev ? {
+          ...prev,
+          isFavourite: status
+        } : null);
+        
+        // Hiển thị thông báo
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating favorite status:", error);
+      alert("Có lỗi xảy ra khi cập nhật trạng thái yêu thích");
     }
-  }
+  };
+
   const renderItem = (item: ReviewProduct) => (
     <View style={styles.reviewContainer} key={item.review_id}>
       {/* User and Rating */}
@@ -325,11 +334,29 @@ const ProductDetailScreen = () => {
 
       {/* Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.bookmarkButton} onPress={() => {
-              handleLikeProduct(product.product_id, user?.user_id, !productDetail.isFavourite)
-        }}>
-          {productDetail.isFavourite == true ? <MaterialIcons name="bookmark-border" size={24} color="red" /> : <MaterialIcons name="bookmark-border" size={24} color="green" />}
-        </TouchableOpacity>
+      <TouchableOpacity 
+        style={[
+          styles.bookmarkButton,
+          productDetail?.isFavourite && styles.bookmarkButtonActive
+        ]} 
+        onPress={() => {
+          if (!user?.user_id) {
+            alert("Vui lòng đăng nhập để thêm vào yêu thích");
+            return;
+          }
+          handleLikeProduct(
+            product.product_id, 
+            user.user_id, 
+            !productDetail.isFavourite
+          );
+        }}
+      >
+        <MaterialIcons 
+          name={productDetail?.isFavourite ? "favorite" : "favorite-border"} 
+          size={24} 
+          color={productDetail?.isFavourite ? "#FF4444" : "#666666"} 
+        />
+      </TouchableOpacity>
         <TouchableOpacity style={styles.addToCartButton} onPress={() => {
           handleSendProductToCart(user?.user_id || 0, (mapProduct?.get(
             `${selectedPairProduct?.color_name}_${selectedPairProduct?.size_name}`
