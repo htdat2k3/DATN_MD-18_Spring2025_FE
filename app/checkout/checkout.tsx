@@ -10,8 +10,10 @@ import { ThemedText } from "@/components/common/ThemedText";
 
 const CheckoutScreen = () => {
     const [address, setAddress] = useState("");
-    const { user, cartsList, saveCartsList, voucher_id, saveVoucherId } = useGlobalState()
-    const [total, setTotal] = useState(cartsList.reduce((acculator, currentValue) => acculator + (currentValue.price * currentValue.quantity), 0))
+    const { user, sale , cartsList, saveCartsList, voucher_id, saveVoucherId, saveSale } = useGlobalState()
+    console.log("sale = " + sale);
+    
+    const [total, setTotal] = useState(sale)
     const [feeTransfer, setFeeTransfer] = useState(0)
     const [paymentMethod, setPaymentMethod] = useState("Paypal");
     const [shippingMethod, setShippingMethod] = useState(10000);
@@ -37,7 +39,7 @@ const CheckoutScreen = () => {
             shipping_address: address,
             variants: dataVariantsList,
             cart_items: cartsIdList,
-            voucher_id: voucher_id
+            voucher_id: ( voucher_id == -1) ? null : voucher_id
         }
         console.log("bodyRequest = " + JSON.stringify(bodyRequest));
         console.log("dataVariantsList = " + dataVariantsList);
@@ -47,6 +49,7 @@ const CheckoutScreen = () => {
             if (response.data != null) {
                 saveCartsList([])
                 saveVoucherId(null)
+                saveSale(0)
                 alert(response.data.message)
                 router.replace("/congratulate")
             }
@@ -54,7 +57,10 @@ const CheckoutScreen = () => {
             alert(error.message)
         }
     }
-
+    const calculateTotal = () => {
+        const shippingFee = parseInt(shippingMethod.toString());
+        return total + shippingFee;
+    };
     const handleSendPaypal = async () => {
         try {
             const dataVariantsList = cartsList.map((data) => (
@@ -171,7 +177,7 @@ const CheckoutScreen = () => {
                 </View>
                 <View style={[styles.summaryRow, styles.totalRow]}>
                     <Text style={styles.totalLabel}>Tổng:</Text>
-                    <Text style={styles.totalValue}>{total - shippingMethod}</Text>
+                    <Text style={styles.totalValue}>{calculateTotal().toLocaleString()}</Text>
                 </View>
             </View>
 

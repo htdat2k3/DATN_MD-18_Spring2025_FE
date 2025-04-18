@@ -5,7 +5,7 @@
 
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
-export const BASE_URL = "http://192.168.1.11:5000/"
+export const BASE_URL = "http://192.168.31.48:5000/"
 
 export const Colors = {
   light: {
