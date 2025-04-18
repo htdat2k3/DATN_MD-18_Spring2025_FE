@@ -12,7 +12,7 @@ const CheckoutScreen = () => {
     const [address, setAddress] = useState("");
     const { user, sale , cartsList, saveCartsList, voucher_id, saveVoucherId, saveSale } = useGlobalState()
     console.log("sale = " + sale);
-    
+
     const [total, setTotal] = useState(sale)
     const [feeTransfer, setFeeTransfer] = useState(0)
     const [paymentMethod, setPaymentMethod] = useState("Paypal");
@@ -57,7 +57,10 @@ const CheckoutScreen = () => {
             alert(error.message)
         }
     }
-
+    const calculateTotal = () => {
+        const shippingFee = parseInt(shippingMethod.toString());
+        return total + shippingFee;
+    };
     const handleSendPaypal = async () => {
         try {
             const dataVariantsList = cartsList.map((data) => (
@@ -174,7 +177,7 @@ const CheckoutScreen = () => {
                 </View>
                 <View style={[styles.summaryRow, styles.totalRow]}>
                     <Text style={styles.totalLabel}>Tổng:</Text>
-                    <Text style={styles.totalValue}>{{total + shippingMethod}}</Text>
+                    <Text style={styles.totalValue}>{calculateTotal().toLocaleString()}</Text>
                 </View>
             </View>
 

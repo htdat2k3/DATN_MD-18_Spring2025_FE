@@ -54,7 +54,7 @@ const DetailedOrdersScreen = () => {
                 <Text style={styles.sectionTitle}>Hàng hóa</Text>
 
                 {orderDetail?.products.map((data, index) => (
-                    <View style={styles.productCard}>
+                    <View key={index} style={styles.productCard}>
                         <Image
                             source={{ uri: `${BASE_URL}/${data.product_image}` || 'https://via.placeholder.com/50' }}
                             style={styles.productImage}

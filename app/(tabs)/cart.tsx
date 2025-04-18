@@ -26,9 +26,11 @@ const CartScreen = () => {
     const [cartItems, setCartItems] = useState([])
     const [codeVoucher, setCodeVoucher] = useState("")
     const [finalPrice, setFinalPrice] = useState(cartItems.reduce((total, item) => total + item.price * item.quantity, 0))
-    const { user, saveCartsList, saveVoucherId } = useGlobalState()
+    const { user, saveCartsList, saveVoucherId, saveSale } = useGlobalState()
     const [appliedVouchers, setAppliedVouchers] = useState<Set<string>>(new Set()); // Thêm state để lưu các mã đã dùng
     const [isApplyingVoucher, setIsApplyingVoucher] = useState(false); // Thêm state để kiểm soát việc đang apply voucher
+
+
     const getAllCart = async () => {
         try {
             const response = await axios.get(`${BASE_URL}cart/cart-by-user/${user?.user_id}`);
@@ -180,17 +182,17 @@ const CartScreen = () => {
 
             if (response.status === 200) {
                 const { voucher_id, final_price } = JSON.parse(JSON.stringify(response.data.data));
-                
+
                 // Thêm mã voucher vào danh sách đã sử dụng
                 setAppliedVouchers(prev => new Set(prev).add(codeVoucher));
-                
+
                 // Cập nhật các giá trị khác
                 saveVoucherId(voucher_id);
                 setFinalPrice(final_price);
-                
+
                 // Reset input sau khi apply thành công
                 setCodeVoucher('');
-                
+
                 alert(response.data.message);
             } else {
                 saveVoucherId(-1);
@@ -263,6 +265,7 @@ const CartScreen = () => {
                             style={styles.checkoutButton}
                             onPress={() => {
                                 Keyboard.dismiss();
+                                saveSale(finalPrice)
                                 router.push("/checkout");
                             }}
                         >
