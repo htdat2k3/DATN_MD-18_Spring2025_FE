@@ -18,14 +18,17 @@ import {
     KeyboardAvoidingView,
     Platform,
     Keyboard,
+    ActivityIndicator,
 } from "react-native";
 
 const CartScreen = () => {
 
     const [cartItems, setCartItems] = useState([])
-    const [codeVoucher, setCodeVoucher] = useState()
+    const [codeVoucher, setCodeVoucher] = useState("")
     const [finalPrice, setFinalPrice] = useState(cartItems.reduce((total, item) => total + item.price * item.quantity, 0))
     const { user, saveCartsList, saveVoucherId } = useGlobalState()
+    const [appliedVouchers, setAppliedVouchers] = useState<Set<string>>(new Set()); // Thêm state để lưu các mã đã dùng
+    const [isApplyingVoucher, setIsApplyingVoucher] = useState(false); // Thêm state để kiểm soát việc đang apply voucher
     const getAllCart = async () => {
         try {
             const response = await axios.get(`${BASE_URL}cart/cart-by-user/${user?.user_id}`);
@@ -149,31 +152,55 @@ const CartScreen = () => {
 
     const applyVoucherCode = async () => {
         ///",
+        if (!codeVoucher?.trim()) {
+            alert("Vui lòng nhập mã giảm giá");
+            return;
+        }
+
+        // Kiểm tra nếu mã đã được sử dụng
+        if (appliedVouchers.has(codeVoucher)) {
+            alert("Mã giảm giá này đã được sử dụng");
+            setCodeVoucher(''); // Reset input
+            return;
+        }
+
+        // Kiểm tra nếu đang trong quá trình apply voucher
+        if (isApplyingVoucher) {
+            return;
+        }
 
         try {
+            setIsApplyingVoucher(true);
+
             const response = await axios.put(`${BASE_URL}order/apply-voucher`, {
                 voucher_code: codeVoucher,
                 total_price: finalPrice,
                 user_id: user?.user_id
             });
-            // console.log(response.data.data);
-            // alert(response.data.message)
-            // console.log(response.data.message);
-            alert(response.data.message)
-            console.log(JSON.stringify(response.status));
-            if (response.status == 200) {
-                console.log(JSON.parse(JSON.stringify(response.data.data)).voucher_id);
-                console.log(JSON.parse(JSON.stringify(response.data.data)).final_price);
-                saveVoucherId(JSON.parse(JSON.stringify(response.data.data)).voucher_id)
-                setFinalPrice(JSON.parse(JSON.stringify(response.data.data)).final_price)
-            } else {
-                saveVoucherId(-1)
-            }
 
-        }
-        catch (e) {
-            console.log("error = " + e.response.data.message);
-            alert(e.response.data.message)
+            if (response.status === 200) {
+                const { voucher_id, final_price } = JSON.parse(JSON.stringify(response.data.data));
+                
+                // Thêm mã voucher vào danh sách đã sử dụng
+                setAppliedVouchers(prev => new Set(prev).add(codeVoucher));
+                
+                // Cập nhật các giá trị khác
+                saveVoucherId(voucher_id);
+                setFinalPrice(final_price);
+                
+                // Reset input sau khi apply thành công
+                setCodeVoucher('');
+                
+                alert(response.data.message);
+            } else {
+                saveVoucherId(-1);
+            }
+        } catch (e) {
+            console.error("Voucher error:", JSON.stringify(e.response.data));
+            alert(e.response?.data?.message || "Có lỗi xảy ra khi áp dụng mã giảm giá");
+            saveVoucherId(-1);
+        } finally {
+            setIsApplyingVoucher(false);
         }
     }
     return (
@@ -198,25 +225,37 @@ const CartScreen = () => {
                     />
 
                     <View style={styles.footer}>
-                        <View style={styles.container_footer}>
-                            <TextInput
-                                placeholder="Nhập mã khuyến mãi của bạn"
-                                style={styles.promoInput_footer}
-                                value={codeVoucher}
-                                onChangeText={setCodeVoucher}
-                                onSubmitEditing={Keyboard.dismiss}
-                                returnKeyType="done"
-                            />
-                            <TouchableOpacity
-                                style={styles.checkoutButton_footer}
-                                onPress={() => {
-                                    Keyboard.dismiss();
-                                    applyVoucherCode();
-                                }}
-                            >
-                                <AntDesign name="mobile1" />
-                            </TouchableOpacity>
-                        </View>
+                    <View style={styles.container_footer}>
+                        <TextInput
+                            placeholder="Nhập mã khuyến mãi của bạn"
+                            style={[
+                                styles.promoInput_footer,
+                                isApplyingVoucher && styles.inputDisabled
+                            ]}
+                            value={codeVoucher}
+                            onChangeText={(text) => setCodeVoucher(text.toUpperCase())} // Chuyển mã thành chữ hoa
+                            onSubmitEditing={Keyboard.dismiss}
+                            returnKeyType="done"
+                            editable={!isApplyingVoucher}
+                        />
+                        <TouchableOpacity
+                            style={[
+                                styles.checkoutButton_footer,
+                                isApplyingVoucher && styles.buttonDisabled
+                            ]}
+                            onPress={() => {
+                                Keyboard.dismiss();
+                                applyVoucherCode();
+                            }}
+                            disabled={isApplyingVoucher}
+                        >
+                            {isApplyingVoucher ? (
+                                <ActivityIndicator size="small" color="#fff" />
+                            ) : (
+                                <AntDesign name="mobile1" color="#fff" />
+                            )}
+                        </TouchableOpacity>
+                    </View>
                         <Text style={styles.totalPrice}>
                             Thành tiền: {formatMoney(finalPrice)}
                         </Text>
@@ -372,6 +411,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,  // Tạo khoảng cách giữa text và circle
+    },
+    inputDisabled: {
+        opacity: 0.7,
+        backgroundColor: '#f5f5f5',
+    },
+    buttonDisabled: {
+        opacity: 0.7,
+    },
+    appliedVoucherText: {
+        fontSize: 12,
+        color: '#008000',
+        marginTop: 4,
     },
 });
 
