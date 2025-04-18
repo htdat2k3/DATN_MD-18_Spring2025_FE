@@ -10,7 +10,7 @@ import { ThemedText } from "@/components/common/ThemedText";
 
 const CheckoutScreen = () => {
     const [address, setAddress] = useState("");
-    const { user, sale , cartsList, saveCartsList, voucher_id, saveVoucherId, saveSale } = useGlobalState()
+    const { user, sale, cartsList, saveCartsList, voucher_id, saveVoucherId, saveSale } = useGlobalState()
     console.log("sale = " + sale);
 
     const [total, setTotal] = useState(sale)
@@ -39,7 +39,7 @@ const CheckoutScreen = () => {
             shipping_address: address,
             variants: dataVariantsList,
             cart_items: cartsIdList,
-            voucher_id: ( voucher_id == -1) ? null : voucher_id
+            voucher_id: (voucher_id == -1) ? null : voucher_id
         }
         console.log("bodyRequest = " + JSON.stringify(bodyRequest));
         console.log("dataVariantsList = " + dataVariantsList);
@@ -177,7 +177,7 @@ const CheckoutScreen = () => {
                 </View>
                 <View style={[styles.summaryRow, styles.totalRow]}>
                     <Text style={styles.totalLabel}>Tổng:</Text>
-                    <Text style={styles.totalValue}>{calculateTotal().toLocaleString()}</Text>
+                    <Text style={styles.totalValue}>{calculateTotal().toLocaleString()} VND</Text>
                 </View>
             </View>
 

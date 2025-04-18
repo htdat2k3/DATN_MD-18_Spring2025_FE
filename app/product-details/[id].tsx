@@ -25,7 +25,7 @@ const ProductDetailScreen = () => {
   const { user } = useGlobalState()
   const { id } = useLocalSearchParams()
   const [productDetail, setProductDetail] = useState<ProductDetail>();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [expandedDescription, setExpandedDescription] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>();
   const [selectedPairProduct, setSelectedPairProduct] = useState<PairProduct>();
@@ -49,7 +49,7 @@ const ProductDetailScreen = () => {
           ...prev,
           isFavourite: status
         } : null);
-        
+
         // Hiển thị thông báo
         alert(response.data.message);
       }
@@ -83,10 +83,13 @@ const ProductDetailScreen = () => {
       console.log(productId)
       setLoading(true);
 
+
       const response = await axios.post(`${BASE_URL}product/detail`, {
-        user_id : user?.user_id,
-        product_id : productId
+        user_id: user?.user_id,
+        product_id: productId
       });
+
+      console.log("=======< VAO");
 
       const mapColor = new Map<string, string[]>();
       const mapSize = new Map<string, string[]>();
@@ -314,7 +317,9 @@ const ProductDetailScreen = () => {
           </TouchableOpacity>
           <Text style={styles.quantity}>{quantity}</Text>
           <TouchableOpacity
-            onPress={() => setQuantity(quantity + 1)}
+            onPress={() => setQuantity(Math.min(quantity + 1, (mapProduct?.get(
+              `${selectedPairProduct?.color_name}_${selectedPairProduct?.size_name}`
+            )?.quantity || 0)))}
             style={styles.quantityButton}
           >
             <Text style={styles.quantity}>+</Text>
@@ -334,33 +339,36 @@ const ProductDetailScreen = () => {
 
       {/* Buttons */}
       <View style={styles.buttonContainer}>
-      <TouchableOpacity 
-        style={[
-          styles.bookmarkButton,
-          productDetail?.isFavourite && styles.bookmarkButtonActive
-        ]} 
-        onPress={() => {
-          if (!user?.user_id) {
-            alert("Vui lòng đăng nhập để thêm vào yêu thích");
-            return;
-          }
-          handleLikeProduct(
-            product.product_id, 
-            user.user_id, 
-            !productDetail.isFavourite
-          );
-        }}
-      >
-        <MaterialIcons 
-          name={productDetail?.isFavourite ? "favorite" : "favorite-border"} 
-          size={24} 
-          color={productDetail?.isFavourite ? "#FF4444" : "#666666"} 
-        />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.bookmarkButton,
+            productDetail?.isFavourite && styles.bookmarkButtonActive
+          ]}
+          onPress={() => {
+            if (!user?.user_id) {
+              alert("Vui lòng đăng nhập để thêm vào yêu thích");
+              return;
+            }
+            handleLikeProduct(
+              product.product_id,
+              user.user_id,
+              !productDetail.isFavourite
+            );
+          }}
+        >
+          <MaterialIcons
+            name={productDetail?.isFavourite ? "favorite" : "favorite-border"}
+            size={24}
+            color={productDetail?.isFavourite ? "#FF4444" : "#666666"}
+          />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.addToCartButton} onPress={() => {
-          handleSendProductToCart(user?.user_id || 0, (mapProduct?.get(
-            `${selectedPairProduct?.color_name}_${selectedPairProduct?.size_name}`
-          )?.variant_id || 0), quantity)
+          if (quantity > 0) {
+            handleSendProductToCart(user?.user_id || 0, (mapProduct?.get(
+              `${selectedPairProduct?.color_name}_${selectedPairProduct?.size_name}`
+            )?.variant_id || 0), quantity)
+          }
+
         }}>
           <Text style={styles.addToCartText}>Thêm Giỏ Hàng</Text>
         </TouchableOpacity>

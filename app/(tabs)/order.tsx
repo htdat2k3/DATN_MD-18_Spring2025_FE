@@ -96,7 +96,22 @@ const OrderScreen = () => {
             console.log("error = " + e);
         }
     }
+    const handleCompleteOrder = async (order_id: number) => {
+        try {
+            const response = await axios.put(`${BASE_URL}order/complete`, {
+                user_id: user?.user_id,
+                order_id: order_id
+            });
+            console.log("response = " + JSON.stringify(response.data));
 
+            // const dataFilter = Array.from(orders).filter((data) => data.order_id != order_id)
+
+            setOrders(prev => prev.filter((data) => data.order_id != order_id))
+        }
+        catch (e) {
+            console.log("error = " + e);
+        }
+    }
     useEffect(() => {
         if (activeTab == "ĐÃ GIAO") {
             handleSendCompletedOrder()
@@ -123,15 +138,21 @@ const OrderScreen = () => {
                 </View>
                 <View style={styles.orderActions}>
                     {
-                        activeTab != "ĐÃ HỦY"  && <Link style={styles.detailButton} href={`/detail-order/${order.order_id}`}>
-                        <Text style={styles.detailButtonText}>Chi tiết</Text>
-                    </Link>
+                        activeTab != "ĐÃ HỦY" && <Link style={styles.detailButton} href={`/detail-order/${order.order_id}`}>
+                            <Text style={styles.detailButtonText}>Chi tiết</Text>
+                        </Link>
                     }
                     {
                         activeTab == "ĐANG XỬ LÝ" && order.status == "pending" && <TouchableOpacity
                             onPress={() => { handleCancelOrder(order.order_id) }}
                         >
                             <Text style={styles.cancelText}>Hủy đơn</Text>
+                        </TouchableOpacity>
+                    }
+                    {
+                        activeTab == "ĐANG GIAO HÀNG" && order.status == "shipping" && <TouchableOpacity
+                            onPress={() => { handleCompleteOrder(order.order_id) }}>
+                            <Text style={styles.cancelText}>Xác nhận đơn hàng</Text>
                         </TouchableOpacity>
                     }
 
@@ -144,7 +165,7 @@ const OrderScreen = () => {
         <ThemedSafeAreaView>
             <View style={styles.container}>
                 <View style={styles.tabContainer}>
-                    {['ĐÃ GIAO','ĐANG GIAO HÀNG', 'ĐANG XỬ LÝ', 'ĐÃ HỦY'].map((tab) => (
+                    {['ĐÃ GIAO', 'ĐANG GIAO HÀNG', 'ĐANG XỬ LÝ', 'ĐÃ HỦY'].map((tab) => (
                         <TouchableOpacity
                             key={tab}
                             style={[
