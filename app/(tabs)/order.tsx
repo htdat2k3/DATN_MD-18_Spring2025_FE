@@ -12,7 +12,8 @@ import {
     Text,
     TouchableOpacity,
     StyleSheet,
-    ScrollView
+    ScrollView,
+    Alert
 } from 'react-native';
 
 const OrderScreen = () => {
@@ -151,11 +152,23 @@ const OrderScreen = () => {
                     }
                     {
                         activeTab == "ĐANG GIAO HÀNG" && order.status == "shipping" && <TouchableOpacity
-                            onPress={() => { handleCompleteOrder(order.order_id) }}>
+                            onPress={() => {
+                                Alert.alert(
+                                    "Xác nhận đơn hàng",
+                                    "Bạn có chắc chắn muốn xác nhận đã nhận được đơn hàng này?",
+                                    [
+                                        { text: "Hủy", style: "cancel" },
+                                        {
+                                            text: "Xác nhận",
+                                            style: "destructive",
+                                            onPress: () => handleCompleteOrder(order.order_id)
+                                        }
+                                    ]
+                                );
+                            }}>
                             <Text style={styles.cancelText}>Xác nhận đơn hàng</Text>
                         </TouchableOpacity>
                     }
-
                 </View>
             </View>
         ));

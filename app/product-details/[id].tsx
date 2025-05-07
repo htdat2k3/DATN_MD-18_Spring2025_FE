@@ -367,15 +367,14 @@ const ProductDetailScreen = () => {
             handleSendProductToCart(user?.user_id || 0, (mapProduct?.get(
               `${selectedPairProduct?.color_name}_${selectedPairProduct?.size_name}`
             )?.variant_id || 0), quantity)
+          } else {
+            alert("Vui lòng chọn số lượng")
           }
 
         }}>
           <Text style={styles.addToCartText}>Thêm Giỏ Hàng</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Buttons */}
-
 
       {/* Description Section */}
       <View style={styles.descriptionContainer}>
