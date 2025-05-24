@@ -4,6 +4,7 @@ import { NewProductItemType } from "@/constants/Types";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, FlatList, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { Link } from "expo-router";
 
 const products = [
     { id: "1", name: "Product 1", image: "https://via.placeholder.com/150" },
@@ -53,10 +54,10 @@ export default function ProductSearch() {
         handleGetProductsList()
     }, [])
     const renderProduct = ({ item }) => (
-        <TouchableOpacity style={styles.productCard}>
+        <Link href={`product-details/${item.product_id}`} style={styles.productCard}>
             <Image source={{ uri: `${BASE_URL}/${item.current_images[0]}` }} style={styles.productImage} />
             <Text style={styles.productName}>{item.product_name}</Text>
-        </TouchableOpacity>
+        </Link>
     );
 
     return (
