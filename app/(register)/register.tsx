@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import { ThemedView } from '@/components/common/ThemedView';
 import { ThemedText } from '@/components/common/ThemedText';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, AntDesign } from '@expo/vector-icons';
 import CommonButton from '@/components/common/CommonButton';
 import { BASE_URL } from '@/constants/Colors';
 import axios from 'axios';
@@ -53,6 +53,13 @@ export default function Register() {
 
     return (
         <ThemedView style={styles.container}>
+            <TouchableOpacity 
+                style={styles.backButton}
+                onPress={() => router.back()}
+            >
+                <AntDesign name="arrowleft" size={24} color="#000" />
+            </TouchableOpacity>
+            
             <ThemedText style={{ marginTop: 10 }} type="title">
                 Đăng ký
             </ThemedText>
@@ -154,5 +161,12 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 8,
         paddingHorizontal: 5,
+    },
+    backButton: {
+        position: 'absolute',
+        top: 40,
+        left: 20,
+        zIndex: 1,
+        padding: 10,
     },
 });
