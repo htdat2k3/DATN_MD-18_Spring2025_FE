@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useGlobalState } from "@/components/global/GlobalStateProvider";
 import axios from "axios";
@@ -21,6 +21,11 @@ const CheckoutScreen = () => {
     const [linkPaypal, setLinkPaypal] = useState(null)
 
     const handleSendDataToServer = async () => {
+        if (!address.trim()) {
+            Alert.alert("Lỗi", "Vui lòng nhập địa chỉ giao hàng!");
+            return;
+        }
+
         const dataVariantsList = cartsList.map((data) => (
             {
                 price: data.price,
@@ -62,6 +67,11 @@ const CheckoutScreen = () => {
         return total + shippingFee;
     };
     const handleSendPaypal = async () => {
+        if (!address.trim()) {
+            Alert.alert("Lỗi", "Vui lòng nhập địa chỉ giao hàng!");
+            return;
+        }
+
         try {
             const dataVariantsList = cartsList.map((data) => (
                 {
@@ -182,14 +192,28 @@ const CheckoutScreen = () => {
             </View>
 
             {/* Place Order Button */}
-            <TouchableOpacity style={styles.orderButton} onPress={() => {
-                if (paymentMethod == "Paypal") {
-                    handleSendPaypal()
-                } else {
-                    handleSendDataToServer()
-                }
-            }}>
-                <Text style={styles.orderButtonText}>Đặt hàng</Text>
+            <TouchableOpacity 
+                style={[
+                    styles.orderButton,
+                    !address.trim() && styles.orderButtonDisabled
+                ]} 
+                onPress={() => {
+                    if (!address.trim()) {
+                        Alert.alert("Lỗi", "Vui lòng nhập địa chỉ giao hàng!");
+                        return;
+                    }
+                    if (paymentMethod == "Paypal") {
+                        handleSendPaypal()
+                    } else {
+                        handleSendDataToServer()
+                    }
+                }}
+                disabled={!address.trim()}
+            >
+                <Text style={[
+                    styles.orderButtonText,
+                    !address.trim() && styles.orderButtonTextDisabled
+                ]}>Đặt hàng</Text>
             </TouchableOpacity>
         </View>
     );
@@ -281,6 +305,12 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
+    },
+    orderButtonDisabled: {
+        backgroundColor: "#cccccc",
+    },
+    orderButtonTextDisabled: {
+        color: "#666666",
     },
 });
 
