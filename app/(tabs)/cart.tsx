@@ -262,14 +262,25 @@ const CartScreen = () => {
                             Thành tiền: {formatMoney(finalPrice)}
                         </Text>
                         <TouchableOpacity
-                            style={styles.checkoutButton}
+                            style={[
+                                styles.checkoutButton,
+                                cartItems.length === 0 && styles.checkoutButtonDisabled
+                            ]}
                             onPress={() => {
+                                if (cartItems.length === 0) {
+                                    Alert.alert("Thông báo", "Giỏ hàng của bạn đang trống!");
+                                    return;
+                                }
                                 Keyboard.dismiss();
                                 saveSale(finalPrice)
                                 router.push("/checkout");
                             }}
+                            disabled={cartItems.length === 0}
                         >
-                            <Text style={styles.checkoutButtonText}>Thanh toán tất cả</Text>
+                            <Text style={[
+                                styles.checkoutButtonText,
+                                cartItems.length === 0 && styles.checkoutButtonTextDisabled
+                            ]}>Thanh toán tất cả</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -426,6 +437,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#008000',
         marginTop: 4,
+    },
+    checkoutButtonDisabled: {
+        backgroundColor: "#cccccc",
+    },
+    checkoutButtonTextDisabled: {
+        color: "#666666",
     },
 });
 
