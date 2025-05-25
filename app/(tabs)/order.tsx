@@ -145,7 +145,20 @@ const OrderScreen = () => {
                     }
                     {
                         activeTab == "ĐANG XỬ LÝ" && order.status == "pending" && <TouchableOpacity
-                            onPress={() => { handleCancelOrder(order.order_id) }}
+                            onPress={() => {
+                                Alert.alert(
+                                    "Xác nhận hủy đơn",
+                                    "Bạn có chắc chắn muốn hủy đơn hàng này?",
+                                    [
+                                        { text: "Không", style: "cancel" },
+                                        {
+                                            text: "Có",
+                                            style: "destructive",
+                                            onPress: () => handleCancelOrder(order.order_id)
+                                        }
+                                    ]
+                                );
+                            }}
                         >
                             <Text style={styles.cancelText}>Hủy đơn</Text>
                         </TouchableOpacity>
